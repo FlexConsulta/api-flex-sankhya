@@ -1,0 +1,11 @@
+{
+  "apps": [
+    {
+      "name": "bkd-hom-servernode-3401",
+      "script": "yarn",
+      "interpreter": "none",
+      "args": "dev",
+      "watch": true
+    }
+  ]
+}

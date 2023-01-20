@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Veiculo {
+  id                  Int      @id @default(autoincrement())
+  placa               String
+  renavam             String?
+  ativo               Boolean  @default(true)
+  cadastro_verificado Boolean  @default(false)
+  dt_criacao          DateTime
+  dt_atualizacao      DateTime
+  id_vehicle_customer Int?
+  Viagem              Viagem[]
+
+  @@map("veiculos")
+}
+
+model Proprietario {
+  id             Int      @id @default(autoincrement())
+  nome_prop      String
+  cpf_cnpj_prop  String
+  ativo          Boolean  @default(true)
+  dt_criacao     DateTime
+  dt_atualizacao DateTime
+  cod_prop       Int
+  Viagem         Viagem[]
+
+  @@map("proprietarios")
+}
+
+model Motorista {
+  id              Int       @id @default(autoincrement())
+  nome_mot        String
+  cpf_cnpj_mot    String
+  cnh_mot         String?
+  dt_emissao_cnh  DateTime?
+  dt_primeira_cnh DateTime?
+  dt_nascimento   DateTime?
+  ativo           Boolean   @default(true)
+  dt_criacao      DateTime
+  dt_atualizacao  DateTime
+  cod_mot         Int
+  Viagem          Viagem[]
+
+  @@map("motoristas")
+}
+
+model Viagem {
+  id               Int       @id @default(autoincrement())
+  id_cliente       Int
+  dt_viagem        DateTime?
+  mercadoria       String?
+  cidade_origem    String?
+  cidade_destino   String?
+  carreta1         String?
+  carreta2         String?
+  carreta3         String?
+  viagem_cancelado String?
+  dt_cancelamento  DateTime?
+  dt_criacao       DateTime
+  dt_atualizacao   DateTime
+  id_motorista     Int
+  id_proprietario  Int
+  id_veiculo       Int
+  cod_ordem_carga  Int
+
+  motorista    Motorista    @relation(fields: [id_motorista], references: [id])
+  proprietario Proprietario @relation(fields: [id_proprietario], references: [id])
+  veiculo      Veiculo      @relation(fields: [id_veiculo], references: [id])
+
+  @@map("viagens")
+}
+
+model IntegracaoSankhya {
+  id         Int      @id @default(autoincrement())
+  last_sync  DateTime
+  type_sync  String
+  page       Int
+  table_name String
+  state      String
+
+  @@map("integracao_sankhya")
+}
