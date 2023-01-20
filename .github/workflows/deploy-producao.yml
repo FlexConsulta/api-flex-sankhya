@@ -1,0 +1,22 @@
+name: Deploy production
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - "main"
+jobs:
+  deploy:
+    name: Deploy producao
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Copy Files
+        uses: SamKirkland/FTP-Deploy-Action@4.3.0
+        with:
+          server: ${{ secrets.SSH_SERVER }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          local-dir: "./"
+          server-dir: "/api.flex.sankhya/"
+          git-ftp-args: "--changed-only"
