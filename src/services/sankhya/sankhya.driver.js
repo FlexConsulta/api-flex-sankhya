@@ -98,7 +98,7 @@ export async function SankhyaServiceDriver(syncType) {
         .map((item) => {
           return {
             nome_mot: item.f0.$,
-            cpf_cnpj_mot: item.f1.$,
+            cpf_mot: item.f1.$,
             cnh_mot: item.f2?.$,
             dt_emissao_cnh: new Date(item.f3?.$),
             dt_primeira_cnh: new Date(item.f4?.$),
@@ -110,8 +110,6 @@ export async function SankhyaServiceDriver(syncType) {
           };
         });
 
-      //console.log("data", dataParsed)
-
       if (syncType == syncTypes.created) {
         await prisma.motorista.createMany({
           data: dataParsed,
@@ -119,16 +117,15 @@ export async function SankhyaServiceDriver(syncType) {
         });
       } else {
         dataParsed.forEach(async (driver) => {
-          //console.log("ow", owner)
           delete driver.nome_mot;
-          delete driver.cpf_cnpj_mot;
+          delete driver.cpf_mot;
 
           let driverToUpdate = await prisma.motorista.findMany({
             where: {
               cod_mot: driver?.cod_mot,
             },
           });
-          //console.log("toUp", ownerToUpdate)
+
           if (driverToUpdate.length > 0) {
             await prisma.motorista.update({
               where: {
