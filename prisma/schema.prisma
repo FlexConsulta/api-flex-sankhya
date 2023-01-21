@@ -37,7 +37,7 @@ model Proprietario {
 model Motorista {
   id              Int       @id @default(autoincrement())
   nome_mot        String
-  cpf_cnpj_mot    String
+  cpf_mot         String
   cnh_mot         String?
   dt_emissao_cnh  DateTime?
   dt_primeira_cnh DateTime?
