@@ -15,7 +15,6 @@ model Veiculo {
   cadastro_verificado Boolean  @default(false)
   dt_criacao          DateTime
   dt_atualizacao      DateTime
-  id_vehicle_customer Int?
   Viagem              Viagem[]
 
   @@map("veiculos")
@@ -28,7 +27,6 @@ model Proprietario {
   ativo          Boolean  @default(true)
   dt_criacao     DateTime
   dt_atualizacao DateTime
-  cod_prop       Int
   Viagem         Viagem[]
 
   @@map("proprietarios")
@@ -45,7 +43,6 @@ model Motorista {
   ativo           Boolean   @default(true)
   dt_criacao      DateTime
   dt_atualizacao  DateTime
-  cod_mot         Int
   Viagem          Viagem[]
 
   @@map("motoristas")
@@ -86,4 +83,73 @@ model IntegracaoSankhya {
   state      String
 
   @@map("integracao_sankhya")
+}
+
+enum enum_status_motorista {
+  Ativo     @map("0")
+  Vencido   @map("1")
+  Bloqueado @map("2")
+}
+
+enum enum_status_proprietario {
+  Ativo     @map("0")
+  Vencido   @map("1")
+  Bloqueado @map("2")
+}
+
+enum enum_status_veiculo {
+  Ativo     @map("0")
+  Vencido   @map("1")
+  Bloqueado @map("2")
+}
+
+model status_motoristas {
+  id               Int                   @id @default(autoincrement())
+  idmotorista      BigInt
+  idcliente        BigInt
+  dt_cliente       DateTime              @db.Timestamptz(6)
+  numero_cliente   String?               @db.VarChar(255)
+  lote_arquivo     String?               @db.VarChar(255)
+  status_motorista enum_status_motorista
+  dt_criacao       DateTime              @db.Timestamptz(6)
+  dt_atualizacao   DateTime              @db.Timestamptz(6)
+  clientesId       Int?
+  motoristasId     Int?
+
+  @@unique([idmotorista, idcliente], map: "const_unique_stmot")
+  @@index([idmotorista], map: "idx_st_motoristas")
+}
+
+model status_proprietarios {
+  id                  Int                      @id @default(autoincrement())
+  idproprietario      BigInt
+  idcliente           BigInt
+  lote_arquivo        String?                  @db.VarChar(255)
+  dt_cliente          DateTime                 @db.Timestamptz(6)
+  numero_cliente      String?                  @db.VarChar(255)
+  status_proprietario enum_status_proprietario
+  dt_criacao          DateTime                 @db.Timestamptz(6)
+  dt_atualizacao      DateTime                 @db.Timestamptz(6)
+  clientesId          Int?
+  proprietariosId     Int?
+
+  @@unique([idproprietario, idcliente], map: "const_unique_stprop")
+  @@index([idproprietario], map: "idx_st_proprietarios")
+}
+
+model status_veiculos {
+  id             Int                 @id @default(autoincrement())
+  idveiculo      BigInt
+  idcliente      BigInt
+  lote_arquivo   String?             @db.VarChar(255)
+  dt_cliente     DateTime            @db.Timestamptz(6)
+  numero_cliente String?             @db.VarChar(255)
+  status_veiculo enum_status_veiculo
+  dt_criacao     DateTime            @db.Timestamptz(6)
+  dt_atualizacao DateTime            @db.Timestamptz(6)
+  clientesId     Int?
+  veiculosId     Int?
+
+  @@unique([idveiculo, idcliente], map: "const_unique_stpveic")
+  @@index([idveiculo], map: "idx_st_veiculos")
 }

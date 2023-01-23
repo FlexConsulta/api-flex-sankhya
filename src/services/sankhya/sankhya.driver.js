@@ -2,11 +2,103 @@ import { apiMge } from "./api.js";
 import { SankhyaServiceAuthenticate } from "./sankhya.authenticate.js";
 import "dotenv/config";
 import { syncTypes } from "../../shared/syncTypes.js";
-import { LogsIntegration } from "../../modules/logs_integration.js";
+import { LogsIntegration } from "../../models/logs_integration.js";
 import { prisma } from "../../database/prismaClient.js";
 import { getDateTimeFromString } from "../utils/dateTime.js";
 import { stateTypes } from "../../shared/stateTypes.js";
 import { tableTypes } from "../../shared/tableTypes.js";
+import { ModelDriver } from "../../models/drivers.js";
+
+const refresStatusDriver = async (dataParsed) => {
+  let modelDriver = new ModelDriver();
+  let newDrivers = [];
+
+  const loopDrivers = async (index) => {
+    const driver = dataParsed[index];
+    if (!driver) return;
+
+    const id = await modelDriver.getDriverIDByCpf(driver.cpf_mot);
+
+    if (!id) {
+      const newStatusDriver = {
+        idmotorista: id,
+        idcliente: process.env.ID_CUSTOMER,
+      };
+
+      await prisma.status_motoristas.upsert({
+        data: newStatusDriver,
+        skipDuplicates: true,
+      });
+    }
+
+    await loopDrivers(index + 1);
+  };
+
+  await loopDrivers();
+};
+
+const updateDrivers = async (dataParsed) => {
+  dataParsed.forEach(async (driver) => {
+    delete driver.nome_mot;
+    delete driver.cpf_mot;
+
+    let driverToUpdate = await prisma.motorista.findMany({
+      where: {
+        cod_mot: driver?.cod_mot,
+      },
+    });
+
+    if (driverToUpdate.length > 0) {
+      await prisma.motorista.update({
+        where: {
+          id: driverToUpdate[0].id,
+        },
+        data: driver,
+      });
+    }
+    driverToUpdate = null;
+  });
+};
+
+const createNewDriver = async (dataParsed) => {
+  let modelDriver = new ModelDriver();
+  let newDrivers = [];
+
+  const filterDrivers = async (index) => {
+    const driver = dataParsed[index];
+    if (!driver) return;
+
+    const id = await modelDriver.getDriverIDByCpf(driver.cpf_mot);
+
+    if (!id) {
+      newDrivers.push({
+        ...driver,
+      });
+    }
+
+    await filterDrivers(index + 1);
+  };
+
+  await filterDrivers(0);
+
+  if (newDrivers.length > 0) {
+    console.log("newDrivers", newDrivers);
+    const data = await prisma.motorista.createMany({
+      data: newDrivers,
+      skipDuplicates: true,
+    });
+    console.log("motoristas criados", data);
+  }
+
+  console.log("motoristas sankhya", dataParsed.length);
+  console.log(
+    "motoristas incluídos",
+    newDrivers.filter((driver) => driver.id == null).length
+  );
+
+  newDrivers = null;
+  modelDriver = null;
+};
 
 export async function SankhyaServiceDriver(syncType) {
   const sankhyaService = await SankhyaServiceAuthenticate.getInstance();
@@ -100,43 +192,22 @@ export async function SankhyaServiceDriver(syncType) {
             nome_mot: item.f0.$,
             cpf_mot: item.f1.$,
             cnh_mot: item.f2?.$,
-            dt_emissao_cnh: new Date(item.f3?.$),
-            dt_primeira_cnh: new Date(item.f4?.$),
-            dt_nascimento: new Date(item.f5?.$),
+            dt_emissao_cnh: getDateTimeFromString(item.f3?.$, true),
+            dt_primeira_cnh: getDateTimeFromString(item.f4?.$, true),
+            dt_nascimento: getDateTimeFromString(item.f5?.$, true),
             ativo: item.f6.$ == "S",
             dt_criacao: getDateTimeFromString(item?.f7?.$),
             dt_atualizacao: getDateTimeFromString(item?.f8?.$),
-            cod_mot: Number(item.f9.$),
           };
         });
 
       if (syncType == syncTypes.created) {
-        await prisma.motorista.createMany({
-          data: dataParsed,
-          skipDuplicates: true,
-        });
+        await createNewDriver(dataParsed);
       } else {
-        dataParsed.forEach(async (driver) => {
-          delete driver.nome_mot;
-          delete driver.cpf_mot;
-
-          let driverToUpdate = await prisma.motorista.findMany({
-            where: {
-              cod_mot: driver?.cod_mot,
-            },
-          });
-
-          if (driverToUpdate.length > 0) {
-            await prisma.motorista.update({
-              where: {
-                id: driverToUpdate[0].id,
-              },
-              data: driver,
-            });
-          }
-          driverToUpdate = null;
-        });
+        await updateDrivers(dataParsed);
       }
+
+      await refresStatusDriver();
 
       dataParsed = null;
       data = null;
