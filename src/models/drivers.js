@@ -12,4 +12,16 @@ export class ModelDriver {
 
     return driver?.length > 0 ? driver[0].id : undefined;
   }
+
+  async getStatusDriversByIdMotoristaAndIdCliente(idmotorista, idcliente) {
+    const status_motorista = await prisma.status_motoristas.findMany({
+      where: {
+        idmotorista,
+        idcliente,
+      },
+      take: 1,
+    });
+
+    return status_motorista?.length > 0 ? status_motorista[0].id : undefined;
+  }
 }

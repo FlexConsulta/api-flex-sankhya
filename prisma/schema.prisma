@@ -113,10 +113,8 @@ model status_motoristas {
   status_motorista enum_status_motorista
   dt_criacao       DateTime              @db.Timestamptz(6)
   dt_atualizacao   DateTime              @db.Timestamptz(6)
-  clientesId       Int?
-  motoristasId     Int?
 
-  @@unique([idmotorista, idcliente], map: "const_unique_stmot")
+  @@unique(fields: [idmotorista, idcliente], name: "idmotorista_idcliente")
   @@index([idmotorista], map: "idx_st_motoristas")
 }
 

@@ -8,56 +8,83 @@ import { getDateTimeFromString } from "../utils/dateTime.js";
 import { stateTypes } from "../../shared/stateTypes.js";
 import { tableTypes } from "../../shared/tableTypes.js";
 import { ModelDriver } from "../../models/drivers.js";
+import { enum_status_motorista } from "@prisma/client";
 
-const refresStatusDriver = async (dataParsed) => {
+const refreshStatusDriver = async (dataParsed) => {
   let modelDriver = new ModelDriver();
-  let newDrivers = [];
 
   const loopDrivers = async (index) => {
-    const driver = dataParsed[index];
+    let newStatusDriver = dataParsed[index];
+    if (!newStatusDriver) return;
+    //console.log("loopDriver", index);
+
+    const id = await modelDriver.getDriverIDByCpf(newStatusDriver.cpf_mot);
+
+    newStatusDriver["idmotorista"] = id;
+    newStatusDriver["idcliente"] = Number(process.env.ID_CUSTOMER);
+    newStatusDriver["dt_cliente"] = newStatusDriver.dt_criacao;
+    newStatusDriver["status_motorista"] =
+      newStatusDriver.ativo === true
+        ? enum_status_motorista.Ativo
+        : enum_status_motorista.Vencido;
+
+    delete newStatusDriver.nome_mot;
+    delete newStatusDriver.cpf_mot;
+    delete newStatusDriver.cnh_mot;
+    delete newStatusDriver.dt_emissao_cnh;
+    delete newStatusDriver.dt_primeira_cnh;
+    delete newStatusDriver.dt_nascimento;
+    delete newStatusDriver.ativo;
+
+    await prisma.status_motoristas.upsert({
+      where: {
+        idmotorista_idcliente: {
+          idmotorista: newStatusDriver.idmotorista,
+          idcliente: newStatusDriver.idcliente,
+        },
+      },
+      update: {
+        ...newStatusDriver,
+      },
+      create: {
+        ...newStatusDriver,
+      },
+    });
+
+    newStatusDriver = null;
+    await loopDrivers(index + 1);
+  };
+
+  await loopDrivers(0);
+  modelDriver = null;
+};
+
+const updateDrivers = async (dataParsed) => {
+  let modelDriver = new ModelDriver();
+
+  const updateDriver = async (index) => {
+    let driver = dataParsed[index];
     if (!driver) return;
 
     const id = await modelDriver.getDriverIDByCpf(driver.cpf_mot);
 
-    if (!id) {
-      const newStatusDriver = {
-        idmotorista: id,
-        idcliente: process.env.ID_CUSTOMER,
-      };
-
-      await prisma.status_motoristas.upsert({
-        data: newStatusDriver,
-        skipDuplicates: true,
-      });
-    }
-
-    await loopDrivers(index + 1);
-  };
-
-  await loopDrivers();
-};
-
-const updateDrivers = async (dataParsed) => {
-  dataParsed.forEach(async (driver) => {
     delete driver.nome_mot;
     delete driver.cpf_mot;
 
-    let driverToUpdate = await prisma.motorista.findMany({
+    await prisma.motorista.update({
       where: {
-        cod_mot: driver?.cod_mot,
+        id: id,
       },
+      data: driver,
     });
 
-    if (driverToUpdate.length > 0) {
-      await prisma.motorista.update({
-        where: {
-          id: driverToUpdate[0].id,
-        },
-        data: driver,
-      });
-    }
-    driverToUpdate = null;
-  });
+    driver = null;
+    await updateDriver(index + 1);
+  };
+
+  await updateDriver(0);
+
+  modelDriver = null;
 };
 
 const createNewDriver = async (dataParsed) => {
@@ -65,7 +92,7 @@ const createNewDriver = async (dataParsed) => {
   let newDrivers = [];
 
   const filterDrivers = async (index) => {
-    const driver = dataParsed[index];
+    let driver = dataParsed[index];
     if (!driver) return;
 
     const id = await modelDriver.getDriverIDByCpf(driver.cpf_mot);
@@ -76,25 +103,26 @@ const createNewDriver = async (dataParsed) => {
       });
     }
 
+    driver = null;
     await filterDrivers(index + 1);
   };
 
   await filterDrivers(0);
 
   if (newDrivers.length > 0) {
-    console.log("newDrivers", newDrivers);
-    const data = await prisma.motorista.createMany({
+    //console.log("newDrivers", newDrivers);
+    await prisma.motorista.createMany({
       data: newDrivers,
       skipDuplicates: true,
     });
-    console.log("motoristas criados", data);
+    //console.log("motoristas criados", data);
   }
 
-  console.log("motoristas sankhya", dataParsed.length);
-  console.log(
-    "motoristas incluídos",
-    newDrivers.filter((driver) => driver.id == null).length
-  );
+  //console.log("motoristas sankhya", dataParsed.length);
+  //console.log(
+  //   "motoristas incluídos",
+  //   newDrivers.filter((driver) => driver.id == null).length
+  // );
 
   newDrivers = null;
   modelDriver = null;
@@ -207,7 +235,7 @@ export async function SankhyaServiceDriver(syncType) {
         await updateDrivers(dataParsed);
       }
 
-      await refresStatusDriver();
+      await refreshStatusDriver(dataParsed);
 
       dataParsed = null;
       data = null;
