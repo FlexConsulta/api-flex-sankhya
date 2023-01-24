@@ -2,7 +2,7 @@ import { prisma } from "../database/prismaClient.js";
 
 export class ModelOwner {
   async getOwnerIDByCpfOrCnpj(cpf_cnpj_prop) {
-    // console.log(cpf_mot);
+    // console.log(cpf_cnpj_prop);
     const owner = await prisma.proprietario.findMany({
       where: {
         cpf_cnpj_prop,
@@ -14,7 +14,7 @@ export class ModelOwner {
   }
 
   async getStatusOwnersByIdProprietarioAndIdCliente(idproprietario, idcliente) {
-    const status_proprietario = await prisma.status_motoristas.findMany({
+    const status_proprietario = await prisma.status_proprietarios.findMany({
       where: {
         idproprietario,
         idcliente,

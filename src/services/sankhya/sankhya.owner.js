@@ -39,9 +39,9 @@ const createnewOwners = async (dataParsed) => {
     });
   }
 
-  // console.log("motoristas sankhya", dataParsed.length);
+  // console.log("proprietarios sankhya", dataParsed.length);
   // console.log(
-  //   "motoristas incluídos",
+  //   "proprietarios incluídos",
   //   newOwners.filter((driver) => driver.id == null).length
   // );
 
