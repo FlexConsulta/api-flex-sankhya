@@ -71,12 +71,14 @@ const updateDrivers = async (dataParsed) => {
     delete driver.nome_mot;
     delete driver.cpf_mot;
 
-    await prisma.motorista.update({
-      where: {
-        id: id,
-      },
-      data: driver,
-    });
+    if (id) {
+      await prisma.motorista.update({
+        where: {
+          id: id,
+        },
+        data: driver,
+      });
+    }
 
     driver = null;
     await updateDriver(index + 1);
