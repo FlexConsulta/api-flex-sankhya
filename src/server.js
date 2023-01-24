@@ -23,10 +23,10 @@ const connectSankhya = async () => {
   // console.log("Sync dirvers created");
   // await SankhyaServiceOwner(syncTypes.created);
   // console.log("Sync owners created");
-  await SankhyaServiceVehicle(syncTypes.created);
-  console.log("Sync veichiles created");
-  // await SankhyaServiceTravel(syncTypes.created);
-  // console.log("Sync travels created");
+  // await SankhyaServiceVehicle(syncTypes.created);
+  // console.log("Sync veichiles created");
+  await SankhyaServiceTravel(syncTypes.created);
+  console.log("Sync travels created");
 
   // await SankhyaServiceDriver(syncTypes.updated);
   // console.log("Sync dirvers updated");

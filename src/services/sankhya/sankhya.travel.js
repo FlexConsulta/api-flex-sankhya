@@ -7,6 +7,75 @@ import { prisma } from "../../database/prismaClient.js";
 import { getDateTimeFromString } from "../utils/dateTime.js";
 import { stateTypes } from "../../shared/stateTypes.js";
 import { tableTypes } from "../../shared/tableTypes.js";
+import { ModelTravel } from "../../models/travels.js";
+import { ModelDriver } from "../../models/drivers.js";
+import { ModelOwner } from "../../models/owners.js";
+import { ModelVehicle } from "../../models/vehicles.js";
+import { enum_viagem_cancelado } from "@prisma/client";
+
+const createNewTravels = async (dataParsed) => {
+  let modelTravel = new ModelTravel();
+  let modelDriver = new ModelDriver();
+  let modelOwner = new ModelOwner();
+  let modelVehicle = new ModelVehicle();
+  let newTravels = [];
+
+  const filterTravels = async (index) => {
+    let travel = dataParsed[index];
+    if (!travel) return;
+
+    const id = await modelTravel.getTravelIDByClientNumber(
+      travel.cod_ordem_carga
+    );
+    const id_motorista = await modelDriver.getDriverIDByCpf(
+      travel.cpf_motorista
+    );
+    const id_proprietario = await modelOwner.getOwnerIDByCpfOrCnpj(
+      travel.cpf_cnpj_proprietario
+    );
+    const id_veiculo = await modelVehicle.getVehicleIDByLicensePlate(
+      travel.placa_veiculo
+    );
+    const viagem_cancelado =
+      newTravels.viagem_cancelado === "S"
+        ? enum_viagem_cancelado.Inativo
+        : enum_viagem_cancelado.Ativo;
+
+    delete travel.cpf_motorista;
+    delete travel.cpf_cnpj_proprietario;
+    delete travel.placa_veiculo;
+    delete travel.viagem_cancelado;
+    delete travel.cod_ordem_carga;
+
+    if (!id && id_motorista && id_proprietario && id_veiculo) {
+      newTravels.push({
+        ...travel,
+        id_motorista,
+        id_proprietario,
+        id_veiculo,
+        viagem_cancelado,
+      });
+    }
+
+    //console.log("travels", newTravels);
+    travel = null;
+    await filterTravels(index + 1);
+  };
+
+  await filterTravels(0);
+
+  if (newTravels.length > 0) {
+    await prisma.viagem.createMany({
+      data: newTravels,
+      skipDuplicates: true,
+    });
+  }
+
+  newTravels = null;
+  modelTravel = null;
+};
+
+const updateTravels = async (dataParsed) => {};
 
 export async function SankhyaServiceTravel(syncType) {
   const sankhyaService = await SankhyaServiceAuthenticate.getInstance();
@@ -111,16 +180,16 @@ export async function SankhyaServiceTravel(syncType) {
               ?.$ &&
             item[`f${field.find((item) => item.name == "ORDEMCARGA").idx}`]
               ?.$ &&
-            item[
-              `f${field.find((item) => item.name == "CODPARCMOTORISTA").idx}`
-            ]?.$ &&
-            item[`f${field.find((item) => item.name == "CODPARCPROPANTT").idx}`]
+            item[`f${field.find((item) => item.name == "AD_CGCCPF_MOT").idx}`]
               ?.$ &&
-            item[`f${field.find((item) => item.name == "CODVEICULO").idx}`]?.$
+            item[`f${field.find((item) => item.name == "AD_CGC_ANTT").idx}`]
+              ?.$ &&
+            item[`f${field.find((item) => item.name == "Veiculo_PLACA").idx}`]
+              ?.$
         )
         .map((item) => {
           return {
-            id_cliente: Number(
+            idcliente: Number(
               item[`f${field.find((item) => item.name == "CODPARCCLI").idx}`]?.$
             ),
             dt_viagem: getDateTimeFromString(
@@ -180,89 +249,52 @@ export async function SankhyaServiceTravel(syncType) {
             dt_atualizacao: getDateTimeFromString(
               item[`f${field.find((item) => item.name == "DTALTER").idx}`]?.$
             ),
-            cod_motorista: Number(
-              item[
-                `f${field.find((item) => item.name == "CODPARCMOTORISTA").idx}`
-              ]?.$
-            ),
-            cod_proprietario: Number(
-              item[
-                `f${field.find((item) => item.name == "CODPARCPROPANTT").idx}`
-              ]?.$
-            ),
-            cod_veiculo: Number(
-              item[`f${field.find((item) => item.name == "CODVEICULO").idx}`]?.$
-            ),
-            cod_ordem_carga: Number(
-              item[`f${field.find((item) => item.name == "ORDEMCARGA").idx}`]?.$
-            ),
+            cod_ordem_carga:
+              item[`f${field.find((item) => item.name == "ORDEMCARGA").idx}`]
+                ?.$,
+            cpf_motorista: item[
+              `f${field.find((item) => item.name == "AD_CGCCPF_MOT").idx}`
+            ]?.$?.replaceAll(".", "").replaceAll("-", ""),
+            cpf_cnpj_proprietario:
+              item[`f${field.find((item) => item.name == "AD_CGC_ANTT").idx}`]
+                ?.$,
+            placa_veiculo:
+              item[`f${field.find((item) => item.name == "Veiculo_PLACA").idx}`]
+                ?.$,
           };
         });
 
-      dataParsed.forEach(async (travel) => {
-        let motorista = await prisma.motorista.findMany({
-          where: {
-            cod_mot: travel.cod_motorista,
-          },
-        });
+      if (syncType == syncTypes.created) {
+        await createNewTravels(dataParsed);
+      } else {
+        await updateTravels(dataParsed);
+      }
 
-        let proprietario = await prisma.proprietario.findMany({
-          where: {
-            cod_prop: travel.cod_proprietario,
-          },
-        });
+      //     if (syncType == syncTypes.created) {
 
-        let veiculo = await prisma.veiculo.findMany({
-          where: {
-            id_vehicle_customer: travel.cod_veiculo,
-          },
-        });
+      //     } else {
+      //       let ordemToUpdate = await prisma.viagem.findMany({
+      //         where: {
+      //           cod_ordem_carga: travel.cod_ordem_carga,
+      //         },
+      //       });
 
-        if (
-          motorista.length > 0 &&
-          proprietario.length > 0 &&
-          veiculo.length > 0
-        ) {
-          const id_motorista = motorista[0].id;
-          const id_proprietario = proprietario[0].id;
-          const id_veiculo = veiculo[0].id;
+      //       if (ordemToUpdate.length > 0) {
+      //         await prisma.viagem.update({
+      //           where: {
+      //             id: ordemToUpdate[0].id,
+      //           },
+      //           data: travel,
+      //         });
+      //       }
 
-          delete travel.cod_motorista;
-          delete travel.cod_proprietario;
-          delete travel.cod_veiculo;
-
-          travel["id_motorista"] = id_motorista;
-          travel["id_proprietario"] = id_proprietario;
-          travel["id_veiculo"] = id_veiculo;
-
-          if (syncType == syncTypes.created) {
-            await prisma.viagem.createMany({
-              data: travel,
-              skipDuplicates: true,
-            });
-          } else {
-            let ordemToUpdate = await prisma.viagem.findMany({
-              where: {
-                cod_ordem_carga: travel.cod_ordem_carga,
-              },
-            });
-
-            if (ordemToUpdate.length > 0) {
-              await prisma.viagem.update({
-                where: {
-                  id: ordemToUpdate[0].id,
-                },
-                data: travel,
-              });
-            }
-
-            ordemToUpdate = null;
-          }
-        }
-        motorista = null;
-        proprietario = null;
-        veiculo = null;
-      });
+      //       ordemToUpdate = null;
+      //     }
+      //   }
+      //   motorista = null;
+      //   proprietario = null;
+      //   veiculo = null;
+      // });
 
       dataParsed = null;
       data = null;
