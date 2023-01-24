@@ -10,7 +10,7 @@ import { tableTypes } from "../../shared/tableTypes.js";
 import { ModelOwner } from "../../models/owners.js";
 import { enum_status_proprietario } from "@prisma/client";
 
-const createnewOwners = async (dataParsed) => {
+const createNewOwners = async (dataParsed) => {
   let modelOwner = new ModelOwner();
   let newOwners = [];
 
@@ -216,7 +216,7 @@ export async function SankhyaServiceOwner(syncType) {
         });
 
       if (syncType == syncTypes.created) {
-        await createnewOwners(dataParsed);
+        await createNewOwners(dataParsed);
       } else {
         await updateOwners(dataParsed);
       }
