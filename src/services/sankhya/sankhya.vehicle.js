@@ -10,7 +10,7 @@ import { tableTypes } from "../../shared/tableTypes.js";
 import { ModelVehicle } from "../../models/vehicles.js";
 import { enum_status_veiculo } from "@prisma/client";
 
-const createNewVehicle = async (dataParsed) => {
+const createNewVehicles = async (dataParsed) => {
   let modelVehicle = new ModelVehicle();
   let newVehicle = [];
 
@@ -209,7 +209,7 @@ export async function SankhyaServiceVehicle(syncType) {
         });
 
       if (syncType == syncTypes.created) {
-        await createNewVehicle(dataParsed);
+        await createNewVehicles(dataParsed);
       } else {
         await updateVehicles(dataParsed);
       }
