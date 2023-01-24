@@ -128,10 +128,8 @@ model status_proprietarios {
   status_proprietario enum_status_proprietario
   dt_criacao          DateTime                 @db.Timestamptz(6)
   dt_atualizacao      DateTime                 @db.Timestamptz(6)
-  clientesId          Int?
-  proprietariosId     Int?
 
-  @@unique([idproprietario, idcliente], map: "const_unique_stprop")
+  @@unique([idproprietario, idcliente], name: "idproprietario_idcliente")
   @@index([idproprietario], map: "idx_st_proprietarios")
 }
 
@@ -145,9 +143,7 @@ model status_veiculos {
   status_veiculo enum_status_veiculo
   dt_criacao     DateTime            @db.Timestamptz(6)
   dt_atualizacao DateTime            @db.Timestamptz(6)
-  clientesId     Int?
-  veiculosId     Int?
 
-  @@unique([idveiculo, idcliente], map: "const_unique_stpveic")
+  @@unique([idveiculo, idcliente], name: "idveiculo_idcliente")
   @@index([idveiculo], map: "idx_st_veiculos")
 }

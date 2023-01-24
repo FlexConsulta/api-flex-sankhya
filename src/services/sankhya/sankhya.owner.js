@@ -7,6 +7,119 @@ import { prisma } from "../../database/prismaClient.js";
 import { getDateTimeFromString } from "../utils/dateTime.js";
 import { stateTypes } from "../../shared/stateTypes.js";
 import { tableTypes } from "../../shared/tableTypes.js";
+import { ModelOwner } from "../../models/owners.js";
+import { enum_status_proprietario } from "@prisma/client";
+
+const createnewOwners = async (dataParsed) => {
+  let modelOwner = new ModelOwner();
+  let newOwners = [];
+
+  const filterOwners = async (index) => {
+    let owner = dataParsed[index];
+    if (!owner) return;
+
+    const id = await modelOwner.getOwnerIDByCpfOrCnpj(owner.cpf_cnpj_prop);
+
+    if (!id) {
+      newOwners.push({
+        ...owner,
+      });
+    }
+
+    owner = null;
+    await filterOwners(index + 1);
+  };
+
+  await filterOwners(0);
+
+  if (newOwners.length > 0) {
+    await prisma.proprietario.createMany({
+      data: newOwners,
+      skipDuplicates: true,
+    });
+  }
+
+  // console.log("motoristas sankhya", dataParsed.length);
+  // console.log(
+  //   "motoristas incluídos",
+  //   newOwners.filter((driver) => driver.id == null).length
+  // );
+
+  newOwners = null;
+  modelOwner = null;
+};
+
+const updateOwners = async (dataParsed) => {
+  let modelOwner = new ModelOwner();
+
+  const updateOwner = async (index) => {
+    let owner = dataParsed[index];
+    if (!owner) return;
+
+    const id = await modelOwner.getOwnerIDByCpfOrCnpj(owner.cpf_cnpj_prop);
+
+    if (id) {
+      await prisma.proprietario.update({
+        where: {
+          id,
+        },
+        data: owner,
+      });
+    }
+
+    owner = null;
+    await updateOwner(index + 1);
+  };
+
+  await updateOwner(0);
+  modelOwner = null;
+};
+
+const refreshStatusOwner = async (dataParsed) => {
+  let modelOwner = new ModelOwner();
+
+  const loopOwner = async (index) => {
+    let newStatusOwner = dataParsed[index];
+    if (!newStatusOwner) return;
+
+    const id = await modelOwner.getOwnerIDByCpfOrCnpj(
+      newStatusOwner.cpf_cnpj_prop
+    );
+
+    newStatusOwner["idproprietario"] = id;
+    newStatusOwner["idcliente"] = Number(process.env.ID_CUSTOMER);
+    newStatusOwner["dt_cliente"] = newStatusOwner.dt_criacao;
+    newStatusOwner["status_proprietario"] =
+      newStatusOwner.ativo === true
+        ? enum_status_proprietario.Ativo
+        : enum_status_proprietario.Vencido;
+
+    delete newStatusOwner.nome_prop;
+    delete newStatusOwner.cpf_cnpj_prop;
+    delete newStatusOwner.ativo;
+
+    await prisma.status_proprietarios.upsert({
+      where: {
+        idproprietario_idcliente: {
+          idproprietario: newStatusOwner.idproprietario,
+          idcliente: newStatusOwner.idcliente,
+        },
+      },
+      update: {
+        ...newStatusOwner,
+      },
+      create: {
+        ...newStatusOwner,
+      },
+    });
+
+    newStatusOwner = null;
+    await loopOwner(index + 1);
+  };
+
+  await loopOwner(0);
+  modelOwner = null;
+};
 
 export async function SankhyaServiceOwner(syncType) {
   const sankhyaService = await SankhyaServiceAuthenticate.getInstance();
@@ -99,34 +212,16 @@ export async function SankhyaServiceOwner(syncType) {
             ativo: item.f2.$ == "S",
             dt_criacao: getDateTimeFromString(item?.f4?.$),
             dt_atualizacao: getDateTimeFromString(item?.f3?.$),
-            cod_prop: Number(item.f5.$),
           };
         });
 
       if (syncType == syncTypes.created) {
-        await prisma.proprietario.createMany({
-          data: dataParsed,
-          skipDuplicates: true,
-        });
+        await createnewOwners(dataParsed);
       } else {
-        dataParsed.forEach(async (owner) => {
-          let ownerToUpdate = await prisma.proprietario.findMany({
-            where: {
-              cod_prop: owner?.cod_prop,
-            },
-          });
-
-          if (ownerToUpdate.length > 0) {
-            await prisma.proprietario.update({
-              where: {
-                id: ownerToUpdate[0].id,
-              },
-              data: owner,
-            });
-          }
-          ownerToUpdate = null;
-        });
+        await updateOwners(dataParsed);
       }
+
+      await refreshStatusOwner(dataParsed);
 
       dataParsed = null;
       data = null;

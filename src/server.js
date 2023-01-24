@@ -19,10 +19,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
 const connectSankhya = async () => {
-  await SankhyaServiceDriver(syncTypes.created);
-  console.log("Sync dirvers created");
-  // await SankhyaServiceOwner(syncTypes.created);
-  // console.log("Sync owners created");
+  // await SankhyaServiceDriver(syncTypes.created);
+  // console.log("Sync dirvers created");
+  await SankhyaServiceOwner(syncTypes.created);
+  console.log("Sync owners created");
   // await SankhyaServiceVehicle(syncTypes.created);
   // console.log("Sync veichiles created");
   // await SankhyaServiceTravel(syncTypes.created);
