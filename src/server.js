@@ -25,8 +25,8 @@ const connectSankhya = async () => {
   // console.log("Sync owners created");
   // await SankhyaServiceVehicle(syncTypes.created);
   // console.log("Sync veichiles created");
-  await SankhyaServiceTravel(syncTypes.created);
-  console.log("Sync travels created");
+  // await SankhyaServiceTravel(syncTypes.created);
+  // console.log("Sync travels created");
 
   // await SankhyaServiceDriver(syncTypes.updated);
   // console.log("Sync dirvers updated");
@@ -34,8 +34,8 @@ const connectSankhya = async () => {
   // console.log("Sync owners updated");
   // await SankhyaServiceVehicle(syncTypes.updated);
   // console.log("Sync veichicles updated");
-  // await SankhyaServiceTravel(syncTypes.updated);
-  // console.log("Sync traves updated");
+  await SankhyaServiceTravel(syncTypes.updated);
+  console.log("Sync traves updated");
 
   console.log("Process finished");
 };

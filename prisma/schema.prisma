@@ -86,7 +86,7 @@ model Viagem {
   id               Int                    @id @default(autoincrement())
   idcliente        Int
   numero_cliente   String
-  dt_viagem        DateTime?
+  dt_viagem        DateTime
   mercadoria       String?
   cidade_origem    String?
   cidade_destino   String?

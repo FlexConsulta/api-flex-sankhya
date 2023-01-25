@@ -36,16 +36,16 @@ const createNewTravels = async (dataParsed) => {
     const id_veiculo = await modelVehicle.getVehicleIDByLicensePlate(
       travel.placa_veiculo
     );
-    const viagem_cancelado =
-      newTravels.viagem_cancelado === "S"
+
+    travel["viagem_cancelado"] =
+      travel.viagem_cancelado === "S"
         ? enum_viagem_cancelado.Inativo
         : enum_viagem_cancelado.Ativo;
 
+    delete travel.cod_ordem_carga;
     delete travel.cpf_motorista;
     delete travel.cpf_cnpj_proprietario;
     delete travel.placa_veiculo;
-    delete travel.viagem_cancelado;
-    delete travel.cod_ordem_carga;
 
     if (!id && id_motorista && id_proprietario && id_veiculo) {
       newTravels.push({
@@ -53,7 +53,6 @@ const createNewTravels = async (dataParsed) => {
         id_motorista,
         id_proprietario,
         id_veiculo,
-        viagem_cancelado,
       });
     }
 
@@ -75,7 +74,43 @@ const createNewTravels = async (dataParsed) => {
   modelTravel = null;
 };
 
-const updateTravels = async (dataParsed) => {};
+const updateTravels = async (dataParsed) => {
+  let modelTravel = new ModelTravel();
+  const updateTravel = async (index) => {
+    let travel = dataParsed[index];
+    if (!travel) return;
+    //console.log("travel", travel.cod_ordem_carga);
+    const id = await modelTravel.getTravelIDByClientNumber(
+      travel.cod_ordem_carga
+    );
+
+    travel["viagem_cancelado"] =
+      travel.viagem_cancelado === "S"
+        ? enum_viagem_cancelado.Inativo
+        : enum_viagem_cancelado.Ativo;
+
+    delete travel.cod_ordem_carga;
+    delete travel.cpf_motorista;
+    delete travel.cpf_cnpj_proprietario;
+    delete travel.placa_veiculo;
+    delete travel.viagem_cancelado;
+
+    if (id) {
+      await prisma.viagem.update({
+        where: {
+          id,
+        },
+        data: travel,
+      });
+    }
+
+    travel = null;
+    await updateTravel(index + 1);
+  };
+
+  await updateTravel(0);
+  modelTravel = null;
+};
 
 export async function SankhyaServiceTravel(syncType) {
   const sankhyaService = await SankhyaServiceAuthenticate.getInstance();
@@ -164,6 +199,7 @@ export async function SankhyaServiceTravel(syncType) {
           (item) =>
             item[`f${field.find((item) => item.name == "CODPARCCLI").idx}`]
               ?.$ &&
+            item[`f${field.find((item) => item.name == "DHSAIDA").idx}`]?.$ &&
             item[
               `f${
                 field.find((item) => item.name == "CidadeOrigem_NOMECID").idx
@@ -269,32 +305,6 @@ export async function SankhyaServiceTravel(syncType) {
       } else {
         await updateTravels(dataParsed);
       }
-
-      //     if (syncType == syncTypes.created) {
-
-      //     } else {
-      //       let ordemToUpdate = await prisma.viagem.findMany({
-      //         where: {
-      //           cod_ordem_carga: travel.cod_ordem_carga,
-      //         },
-      //       });
-
-      //       if (ordemToUpdate.length > 0) {
-      //         await prisma.viagem.update({
-      //           where: {
-      //             id: ordemToUpdate[0].id,
-      //           },
-      //           data: travel,
-      //         });
-      //       }
-
-      //       ordemToUpdate = null;
-      //     }
-      //   }
-      //   motorista = null;
-      //   proprietario = null;
-      //   veiculo = null;
-      // });
 
       dataParsed = null;
       data = null;
