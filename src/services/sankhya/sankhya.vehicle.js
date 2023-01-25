@@ -7,6 +7,119 @@ import { prisma } from "../../database/prismaClient.js";
 import { getDateTimeFromString } from "../utils/dateTime.js";
 import { stateTypes } from "../../shared/stateTypes.js";
 import { tableTypes } from "../../shared/tableTypes.js";
+import { ModelVehicle } from "../../models/vehicles.js";
+import { enum_status_veiculo } from "@prisma/client";
+
+const createNewVehicles = async (dataParsed) => {
+  let modelVehicle = new ModelVehicle();
+  let newVehicle = [];
+
+  const filterVehicles = async (index) => {
+    let vehicle = dataParsed[index];
+    if (!vehicle) return;
+
+    const id = await modelVehicle.getVehicleIDByLicensePlate(vehicle.placa);
+
+    if (!id) {
+      newVehicle.push({
+        ...vehicle,
+      });
+    }
+
+    vehicle = null;
+    await filterVehicles(index + 1);
+  };
+
+  await filterVehicles(0);
+
+  if (newVehicle.length > 0) {
+    await prisma.veiculo.createMany({
+      data: newVehicle,
+      skipDuplicates: true,
+    });
+  }
+
+  // console.log("veiculos sankhya", dataParsed.length);
+  // console.log(
+  //   "veiculos incluídos",
+  //   newVehicle.filter((driver) => driver.id == null).length
+  // );
+
+  newVehicle = null;
+  modelVehicle = null;
+};
+
+const updateVehicles = async (dataParsed) => {
+  let modelVehicle = new ModelVehicle();
+
+  const updateVehicle = async (index) => {
+    let vehicle = dataParsed[index];
+    if (!vehicle) return;
+
+    const id = await modelVehicle.getVehicleIDByLicensePlate(vehicle.placa);
+
+    if (id) {
+      await prisma.veiculo.update({
+        where: {
+          id,
+        },
+        data: vehicle,
+      });
+    }
+
+    vehicle = null;
+    await updateVehicle(index + 1);
+  };
+
+  await updateVehicle(0);
+  modelVehicle = null;
+};
+
+const refreshStatusVehicle = async (dataParsed) => {
+  let modelVehicle = new ModelVehicle();
+
+  const loopVehicle = async (index) => {
+    let newStatusVehicle = dataParsed[index];
+    if (!newStatusVehicle) return;
+
+    const id = await modelVehicle.getVehicleIDByLicensePlate(
+      newStatusVehicle.placa
+    );
+
+    newStatusVehicle["idveiculo"] = id;
+    newStatusVehicle["idcliente"] = Number(process.env.ID_CUSTOMER);
+    newStatusVehicle["dt_cliente"] = newStatusVehicle.dt_criacao;
+    newStatusVehicle["status_veiculo"] =
+      newStatusVehicle.ativo === true
+        ? enum_status_veiculo.Ativo
+        : enum_status_veiculo.Vencido;
+
+    delete newStatusVehicle.placa;
+    delete newStatusVehicle.renavam;
+    delete newStatusVehicle.ativo;
+
+    await prisma.status_veiculos.upsert({
+      where: {
+        idveiculo_idcliente: {
+          idveiculo: newStatusVehicle.idveiculo,
+          idcliente: newStatusVehicle.idcliente,
+        },
+      },
+      update: {
+        ...newStatusVehicle,
+      },
+      create: {
+        ...newStatusVehicle,
+      },
+    });
+
+    newStatusVehicle = null;
+    await loopVehicle(index + 1);
+  };
+
+  await loopVehicle(0);
+  modelVehicle = null;
+};
 
 export async function SankhyaServiceVehicle(syncType) {
   const sankhyaService = await SankhyaServiceAuthenticate.getInstance();
@@ -92,33 +205,16 @@ export async function SankhyaServiceVehicle(syncType) {
             ativo: item.f2.$ == "S",
             dt_criacao: getDateTimeFromString(item?.f4?.$),
             dt_atualizacao: getDateTimeFromString(item?.f3?.$),
-            id_vehicle_customer: Number(item.f5.$),
           };
         });
 
       if (syncType == syncTypes.created) {
-        await prisma.veiculo.createMany({
-          data: dataParsed,
-          skipDuplicates: true,
-        });
+        await createNewVehicles(dataParsed);
       } else {
-        dataParsed.forEach(async (vehicle) => {
-          let vehicleToUpdate = await prisma.veiculo.findMany({
-            where: {
-              id_vehicle_customer: vehicle.id_vehicle_customer,
-            },
-          });
-          if (vehicleToUpdate.length > 0) {
-            await prisma.veiculo.update({
-              where: {
-                id: vehicleToUpdate[0].id,
-              },
-              data: vehicle,
-            });
-          }
-          vehicleToUpdate = null;
-        });
+        await updateVehicles(dataParsed);
       }
+
+      await refreshStatusVehicle(dataParsed);
 
       dataParsed = null;
       data = null;

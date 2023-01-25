@@ -48,32 +48,6 @@ model Motorista {
   @@map("motoristas")
 }
 
-model Viagem {
-  id               Int       @id @default(autoincrement())
-  id_cliente       Int
-  dt_viagem        DateTime?
-  mercadoria       String?
-  cidade_origem    String?
-  cidade_destino   String?
-  carreta1         String?
-  carreta2         String?
-  carreta3         String?
-  viagem_cancelado String?
-  dt_cancelamento  DateTime?
-  dt_criacao       DateTime
-  dt_atualizacao   DateTime
-  id_motorista     Int
-  id_proprietario  Int
-  id_veiculo       Int
-  cod_ordem_carga  Int
-
-  motorista    Motorista    @relation(fields: [id_motorista], references: [id])
-  proprietario Proprietario @relation(fields: [id_proprietario], references: [id])
-  veiculo      Veiculo      @relation(fields: [id_veiculo], references: [id])
-
-  @@map("viagens")
-}
-
 model IntegracaoSankhya {
   id         Int      @id @default(autoincrement())
   last_sync  DateTime
@@ -83,6 +57,11 @@ model IntegracaoSankhya {
   state      String
 
   @@map("integracao_sankhya")
+}
+
+enum enum_viagem_cancelado {
+  Ativo   @map("N")
+  Inativo @map("S")
 }
 
 enum enum_status_motorista {
@@ -101,6 +80,32 @@ enum enum_status_veiculo {
   Ativo     @map("0")
   Vencido   @map("1")
   Bloqueado @map("2")
+}
+
+model Viagem {
+  id               Int                    @id @default(autoincrement())
+  idcliente        Int
+  numero_cliente   String
+  dt_viagem        DateTime
+  mercadoria       String?
+  cidade_origem    String?
+  cidade_destino   String?
+  carreta1         String?
+  carreta2         String?
+  carreta3         String?
+  viagem_cancelado enum_viagem_cancelado?
+  dt_cancelamento  DateTime?
+  dt_criacao       DateTime
+  dt_atualizacao   DateTime
+  idmotorista      Int
+  idproprietario   Int
+  idveiculo        Int
+
+  motorista    Motorista    @relation(fields: [idmotorista], references: [id])
+  proprietario Proprietario @relation(fields: [idproprietario], references: [id])
+  veiculo      Veiculo      @relation(fields: [idveiculo], references: [id])
+
+  @@map("viagens")
 }
 
 model status_motoristas {
@@ -128,10 +133,8 @@ model status_proprietarios {
   status_proprietario enum_status_proprietario
   dt_criacao          DateTime                 @db.Timestamptz(6)
   dt_atualizacao      DateTime                 @db.Timestamptz(6)
-  clientesId          Int?
-  proprietariosId     Int?
 
-  @@unique([idproprietario, idcliente], map: "const_unique_stprop")
+  @@unique([idproprietario, idcliente], name: "idproprietario_idcliente")
   @@index([idproprietario], map: "idx_st_proprietarios")
 }
 
@@ -145,9 +148,7 @@ model status_veiculos {
   status_veiculo enum_status_veiculo
   dt_criacao     DateTime            @db.Timestamptz(6)
   dt_atualizacao DateTime            @db.Timestamptz(6)
-  clientesId     Int?
-  veiculosId     Int?
 
-  @@unique([idveiculo, idcliente], map: "const_unique_stpveic")
+  @@unique([idveiculo, idcliente], name: "idveiculo_idcliente")
   @@index([idveiculo], map: "idx_st_veiculos")
 }

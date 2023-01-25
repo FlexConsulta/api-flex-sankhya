@@ -19,8 +19,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
 const connectSankhya = async () => {
-  await SankhyaServiceDriver(syncTypes.created);
-  console.log("Sync dirvers created");
+  // await SankhyaServiceDriver(syncTypes.created);
+  // console.log("Sync dirvers created");
   // await SankhyaServiceOwner(syncTypes.created);
   // console.log("Sync owners created");
   // await SankhyaServiceVehicle(syncTypes.created);
@@ -34,8 +34,8 @@ const connectSankhya = async () => {
   // console.log("Sync owners updated");
   // await SankhyaServiceVehicle(syncTypes.updated);
   // console.log("Sync veichicles updated");
-  // await SankhyaServiceTravel(syncTypes.updated);
-  // console.log("Sync traves updated");
+  await SankhyaServiceTravel(syncTypes.updated);
+  console.log("Sync traves updated");
 
   console.log("Process finished");
 };
