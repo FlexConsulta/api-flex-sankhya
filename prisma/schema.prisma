@@ -15,7 +15,6 @@ model Veiculo {
   cadastro_verificado Boolean  @default(false)
   dt_criacao          DateTime
   dt_atualizacao      DateTime
-  id_vehicle_customer Int?
   Viagem              Viagem[]
 
   @@map("veiculos")
@@ -28,7 +27,6 @@ model Proprietario {
   ativo          Boolean  @default(true)
   dt_criacao     DateTime
   dt_atualizacao DateTime
-  cod_prop       Int
   Viagem         Viagem[]
 
   @@map("proprietarios")
@@ -45,36 +43,9 @@ model Motorista {
   ativo           Boolean   @default(true)
   dt_criacao      DateTime
   dt_atualizacao  DateTime
-  cod_mot         Int
   Viagem          Viagem[]
 
   @@map("motoristas")
-}
-
-model Viagem {
-  id               Int       @id @default(autoincrement())
-  id_cliente       Int
-  dt_viagem        DateTime?
-  mercadoria       String?
-  cidade_origem    String?
-  cidade_destino   String?
-  carreta1         String?
-  carreta2         String?
-  carreta3         String?
-  viagem_cancelado String?
-  dt_cancelamento  DateTime?
-  dt_criacao       DateTime
-  dt_atualizacao   DateTime
-  id_motorista     Int
-  id_proprietario  Int
-  id_veiculo       Int
-  cod_ordem_carga  Int
-
-  motorista    Motorista    @relation(fields: [id_motorista], references: [id])
-  proprietario Proprietario @relation(fields: [id_proprietario], references: [id])
-  veiculo      Veiculo      @relation(fields: [id_veiculo], references: [id])
-
-  @@map("viagens")
 }
 
 model IntegracaoSankhya {
@@ -86,4 +57,98 @@ model IntegracaoSankhya {
   state      String
 
   @@map("integracao_sankhya")
+}
+
+enum enum_viagem_cancelado {
+  Ativo   @map("N")
+  Inativo @map("S")
+}
+
+enum enum_status_motorista {
+  Ativo     @map("0")
+  Vencido   @map("1")
+  Bloqueado @map("2")
+}
+
+enum enum_status_proprietario {
+  Ativo     @map("0")
+  Vencido   @map("1")
+  Bloqueado @map("2")
+}
+
+enum enum_status_veiculo {
+  Ativo     @map("0")
+  Vencido   @map("1")
+  Bloqueado @map("2")
+}
+
+model Viagem {
+  id               Int                    @id @default(autoincrement())
+  idcliente        Int
+  numero_cliente   String
+  dt_viagem        DateTime
+  mercadoria       String?
+  cidade_origem    String?
+  cidade_destino   String?
+  carreta1         String?
+  carreta2         String?
+  carreta3         String?
+  viagem_cancelado enum_viagem_cancelado?
+  dt_cancelamento  DateTime?
+  dt_criacao       DateTime
+  dt_atualizacao   DateTime
+  idmotorista      Int
+  idproprietario   Int
+  idveiculo        Int
+
+  motorista    Motorista    @relation(fields: [idmotorista], references: [id])
+  proprietario Proprietario @relation(fields: [idproprietario], references: [id])
+  veiculo      Veiculo      @relation(fields: [idveiculo], references: [id])
+
+  @@map("viagens")
+}
+
+model status_motoristas {
+  id               Int                   @id @default(autoincrement())
+  idmotorista      BigInt
+  idcliente        BigInt
+  dt_cliente       DateTime              @db.Timestamptz(6)
+  numero_cliente   String?               @db.VarChar(255)
+  lote_arquivo     String?               @db.VarChar(255)
+  status_motorista enum_status_motorista
+  dt_criacao       DateTime              @db.Timestamptz(6)
+  dt_atualizacao   DateTime              @db.Timestamptz(6)
+
+  @@unique(fields: [idmotorista, idcliente], name: "idmotorista_idcliente")
+  @@index([idmotorista], map: "idx_st_motoristas")
+}
+
+model status_proprietarios {
+  id                  Int                      @id @default(autoincrement())
+  idproprietario      BigInt
+  idcliente           BigInt
+  lote_arquivo        String?                  @db.VarChar(255)
+  dt_cliente          DateTime                 @db.Timestamptz(6)
+  numero_cliente      String?                  @db.VarChar(255)
+  status_proprietario enum_status_proprietario
+  dt_criacao          DateTime                 @db.Timestamptz(6)
+  dt_atualizacao      DateTime                 @db.Timestamptz(6)
+
+  @@unique([idproprietario, idcliente], name: "idproprietario_idcliente")
+  @@index([idproprietario], map: "idx_st_proprietarios")
+}
+
+model status_veiculos {
+  id             Int                 @id @default(autoincrement())
+  idveiculo      BigInt
+  idcliente      BigInt
+  lote_arquivo   String?             @db.VarChar(255)
+  dt_cliente     DateTime            @db.Timestamptz(6)
+  numero_cliente String?             @db.VarChar(255)
+  status_veiculo enum_status_veiculo
+  dt_criacao     DateTime            @db.Timestamptz(6)
+  dt_atualizacao DateTime            @db.Timestamptz(6)
+
+  @@unique([idveiculo, idcliente], name: "idveiculo_idcliente")
+  @@index([idveiculo], map: "idx_st_veiculos")
 }

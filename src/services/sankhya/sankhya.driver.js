@@ -2,11 +2,133 @@ import { apiMge } from "./api.js";
 import { SankhyaServiceAuthenticate } from "./sankhya.authenticate.js";
 import "dotenv/config";
 import { syncTypes } from "../../shared/syncTypes.js";
-import { LogsIntegration } from "../../modules/logs_integration.js";
+import { LogsIntegration } from "../../models/logs_integration.js";
 import { prisma } from "../../database/prismaClient.js";
 import { getDateTimeFromString } from "../utils/dateTime.js";
 import { stateTypes } from "../../shared/stateTypes.js";
 import { tableTypes } from "../../shared/tableTypes.js";
+import { ModelDriver } from "../../models/drivers.js";
+import { enum_status_motorista } from "@prisma/client";
+
+const refreshStatusDriver = async (dataParsed) => {
+  let modelDriver = new ModelDriver();
+
+  const loopDrivers = async (index) => {
+    let newStatusDriver = dataParsed[index];
+    if (!newStatusDriver) return;
+    //console.log("loopDriver", index);
+
+    const id = await modelDriver.getDriverIDByCpf(newStatusDriver.cpf_mot);
+
+    newStatusDriver["idmotorista"] = id;
+    newStatusDriver["idcliente"] = Number(process.env.ID_CUSTOMER);
+    newStatusDriver["dt_cliente"] = newStatusDriver.dt_criacao;
+    newStatusDriver["status_motorista"] =
+      newStatusDriver.ativo === true
+        ? enum_status_motorista.Ativo
+        : enum_status_motorista.Vencido;
+
+    delete newStatusDriver.nome_mot;
+    delete newStatusDriver.cpf_mot;
+    delete newStatusDriver.cnh_mot;
+    delete newStatusDriver.dt_emissao_cnh;
+    delete newStatusDriver.dt_primeira_cnh;
+    delete newStatusDriver.dt_nascimento;
+    delete newStatusDriver.ativo;
+
+    await prisma.status_motoristas.upsert({
+      where: {
+        idmotorista_idcliente: {
+          idmotorista: newStatusDriver.idmotorista,
+          idcliente: newStatusDriver.idcliente,
+        },
+      },
+      update: {
+        ...newStatusDriver,
+      },
+      create: {
+        ...newStatusDriver,
+      },
+    });
+
+    newStatusDriver = null;
+    await loopDrivers(index + 1);
+  };
+
+  await loopDrivers(0);
+  modelDriver = null;
+};
+
+const updateDrivers = async (dataParsed) => {
+  let modelDriver = new ModelDriver();
+
+  const updateDriver = async (index) => {
+    let driver = dataParsed[index];
+    if (!driver) return;
+
+    const id = await modelDriver.getDriverIDByCpf(driver.cpf_mot);
+
+    delete driver.nome_mot;
+    delete driver.cpf_mot;
+
+    if (id) {
+      await prisma.motorista.update({
+        where: {
+          id: id,
+        },
+        data: driver,
+      });
+    }
+
+    driver = null;
+    await updateDriver(index + 1);
+  };
+
+  await updateDriver(0);
+
+  modelDriver = null;
+};
+
+const createNewDriver = async (dataParsed) => {
+  let modelDriver = new ModelDriver();
+  let newDrivers = [];
+
+  const filterDrivers = async (index) => {
+    let driver = dataParsed[index];
+    if (!driver) return;
+
+    const id = await modelDriver.getDriverIDByCpf(driver.cpf_mot);
+
+    if (!id) {
+      newDrivers.push({
+        ...driver,
+      });
+    }
+
+    driver = null;
+    await filterDrivers(index + 1);
+  };
+
+  await filterDrivers(0);
+
+  if (newDrivers.length > 0) {
+    //console.log("newDrivers", newDrivers);
+    await prisma.motorista.createMany({
+      data: newDrivers,
+      skipDuplicates: true,
+    });
+    //console.log("motoristas criados", data);
+  }
+
+  //console.log("motoristas sankhya", dataParsed.length);
+  //console.log(
+  //   "motoristas incluídos",
+  //   newDrivers.filter((driver) => driver.id == null).length
+  // );
+
+  newDrivers = null;
+  modelDriver = null;
+};
 
 export async function SankhyaServiceDriver(syncType) {
   const sankhyaService = await SankhyaServiceAuthenticate.getInstance();
@@ -100,43 +222,22 @@ export async function SankhyaServiceDriver(syncType) {
             nome_mot: item.f0.$,
             cpf_mot: item.f1.$,
             cnh_mot: item.f2?.$,
-            dt_emissao_cnh: new Date(item.f3?.$),
-            dt_primeira_cnh: new Date(item.f4?.$),
-            dt_nascimento: new Date(item.f5?.$),
+            dt_emissao_cnh: getDateTimeFromString(item.f3?.$, true),
+            dt_primeira_cnh: getDateTimeFromString(item.f4?.$, true),
+            dt_nascimento: getDateTimeFromString(item.f5?.$, true),
             ativo: item.f6.$ == "S",
             dt_criacao: getDateTimeFromString(item?.f7?.$),
             dt_atualizacao: getDateTimeFromString(item?.f8?.$),
-            cod_mot: Number(item.f9.$),
           };
         });
 
       if (syncType == syncTypes.created) {
-        await prisma.motorista.createMany({
-          data: dataParsed,
-          skipDuplicates: true,
-        });
+        await createNewDriver(dataParsed);
       } else {
-        dataParsed.forEach(async (driver) => {
-          delete driver.nome_mot;
-          delete driver.cpf_mot;
-
-          let driverToUpdate = await prisma.motorista.findMany({
-            where: {
-              cod_mot: driver?.cod_mot,
-            },
-          });
-
-          if (driverToUpdate.length > 0) {
-            await prisma.motorista.update({
-              where: {
-                id: driverToUpdate[0].id,
-              },
-              data: driver,
-            });
-          }
-          driverToUpdate = null;
-        });
+        await updateDrivers(dataParsed);
       }
+
+      await refreshStatusDriver(dataParsed);
 
       dataParsed = null;
       data = null;

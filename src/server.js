@@ -19,39 +19,41 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
 const connectSankhya = async () => {
-  await SankhyaServiceDriver(syncTypes.created);
-  console.log("Sync dirvers created");
-  await SankhyaServiceOwner(syncTypes.created);
-  console.log("Sync owners created");
-  await SankhyaServiceVehicle(syncTypes.created);
-  console.log("Sync veichiles created");
-  await SankhyaServiceTravel(syncTypes.created);
-  console.log("Sync travels created");
+  // await SankhyaServiceDriver(syncTypes.created);
+  // console.log("Sync dirvers created");
+  // await SankhyaServiceOwner(syncTypes.created);
+  // console.log("Sync owners created");
+  // await SankhyaServiceVehicle(syncTypes.created);
+  // console.log("Sync veichiles created");
+  // await SankhyaServiceTravel(syncTypes.created);
+  // console.log("Sync travels created");
 
-  await SankhyaServiceDriver(syncTypes.updated);
-  console.log("Sync dirvers updated");
-  await SankhyaServiceOwner(syncTypes.updated);
-  console.log("Sync owners updated");
-  await SankhyaServiceVehicle(syncTypes.updated);
-  console.log("Sync veichicles updated");
+  // await SankhyaServiceDriver(syncTypes.updated);
+  // console.log("Sync dirvers updated");
+  // await SankhyaServiceOwner(syncTypes.updated);
+  // console.log("Sync owners updated");
+  // await SankhyaServiceVehicle(syncTypes.updated);
+  // console.log("Sync veichicles updated");
   await SankhyaServiceTravel(syncTypes.updated);
   console.log("Sync traves updated");
 
   console.log("Process finished");
 };
 
-const checkTime = () => {
-  setTimeout(async () => {
-    const [hora, minuto] = new Date().toLocaleTimeString().split(":");
+// const checkTime = () => {
+//   setTimeout(async () => {
+//     const [hora, minuto] = new Date().toLocaleTimeString().split(":");
 
-    if (hora == 15 && minuto == 59) {
-      await connectSankhya();
-    }
-    checkTime();
-  }, 6000); //60000
-};
+//     if (hora == 15 && minuto == 59) {
+//       await connectSankhya();
+//     }
+//     checkTime();
+//   }, 6000); //60000
+// };
 
-checkTime();
+// checkTime();
+
+connectSankhya();
 
 app.listen(process.env.PORT, async () => {
   console.log(`App started on ${process.env.PORT} 👍 `);

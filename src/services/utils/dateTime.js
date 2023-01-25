@@ -1,8 +1,10 @@
 export const getDateTimeFromString = (str, nullLabel = false) => {
-  if (nullLabel && !str) return str;
+  if (nullLabel && !str) return null;
   if (!str) return new Date();
 
-  const [dateValues, timeValues] = str.split(" ");
+  const [dateValues, timeValues] = str.trim().includes(" ")
+    ? str.split(" ")
+    : `${str} 00:00:00`.split(" ");
 
   const [day, month, year] = dateValues.split("/");
 
