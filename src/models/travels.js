@@ -1,11 +1,12 @@
 import { prisma } from "../database/prismaClient.js";
 
 export class ModelTravel {
-  async getTravelIDByClientNumber(cod_ordem_carga) {
-    //console.log(cod_ordem_carga);
+  async getTravelIDByClientNumber(numero_cliente) {
+    //console.log(numero_cliente);
     const travel = await prisma.viagem.findMany({
       where: {
-        numero_cliente: cod_ordem_carga,
+        numero_cliente,
+        idcliente: Number(process.env.ID_CUSTOMER),
       },
       take: 1,
     });

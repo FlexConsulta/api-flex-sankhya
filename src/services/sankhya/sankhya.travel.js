@@ -25,9 +25,9 @@ const dataValidate = async (travel) => {
     modelOwner = null;
     modelVehicle = null;
     return {
-      id_motorista: undefined,
-      id_proprietario: undefined,
-      id_veiculo: undefined,
+      idmotorista: undefined,
+      idproprietario: undefined,
+      idveiculo: undefined,
       isValidData: undefined,
     };
   };
@@ -35,22 +35,23 @@ const dataValidate = async (travel) => {
   const id = await modelTravel.getTravelIDByClientNumber(travel.numero_cliente);
   if (id) return clearData();
 
-  const id_motorista = await modelDriver.getDriverIDByCpf(travel.cpf_motorista);
-  if (!id_motorista) return clearData();
+  const idmotorista = await modelDriver.getDriverIDByCpf(travel.cpf_motorista);
+  if (!idmotorista) return clearData();
 
-  const id_proprietario = await modelOwner.getOwnerIDByCpfOrCnpj(
+  const idproprietario = await modelOwner.getOwnerIDByCpfOrCnpj(
     travel.cpf_cnpj_proprietario
   );
-  if (!id_proprietario) return clearData();
+  if (!idproprietario) return clearData();
 
-  const id_veiculo = await modelVehicle.getVehicleIDByLicensePlate(
+  const idveiculo = await modelVehicle.getVehicleIDByLicensePlate(
     travel.placa_veiculo
   );
-  if (!id_veiculo) return clearData();
+
+  if (!idveiculo) return clearData();
 
   clearData();
 
-  return { id_motorista, id_proprietario, id_veiculo, isValidData: true };
+  return { idmotorista, idproprietario, idveiculo, isValidData: true };
 };
 
 const createNewTravels = async (dataParsed) => {
@@ -67,21 +68,19 @@ const createNewTravels = async (dataParsed) => {
         ? enum_viagem_cancelado.S
         : enum_viagem_cancelado.N;
 
-    const { id_motorista, id_proprietario, id_veiculo, isValidData } =
-      dataValidate(travel);
+    const { idmotorista, idproprietario, idveiculo, isValidData } =
+      await dataValidate(travel);
 
     delete travel.cpf_motorista;
     delete travel.cpf_cnpj_proprietario;
     delete travel.placa_veiculo;
 
-    // console.log(travel, id_motorista, id_proprietario, id_veiculo, isValidData);
-
     if (isValidData) {
       newTravels.push({
         ...travel,
-        id_motorista,
-        id_proprietario,
-        id_veiculo,
+        idmotorista,
+        idproprietario,
+        idveiculo,
       });
     }
 
@@ -308,6 +307,9 @@ export async function SankhyaServiceTravel(syncType) {
               true
             ),
             dt_criacao: getDateTimeFromString(
+              item[`f${field.find((item) => item.name == "DHINCLUSAO").idx}`]?.$
+            ),
+            dt_cliente: getDateTimeFromString(
               item[`f${field.find((item) => item.name == "DHINCLUSAO").idx}`]?.$
             ),
             dt_atualizacao: getDateTimeFromString(
