@@ -96,6 +96,7 @@ model Viagem {
   viagem_cancelado enum_viagem_cancelado?
   dt_cancelamento  DateTime?
   dt_criacao       DateTime
+  dt_cliente       DateTime
   dt_atualizacao   DateTime
   idmotorista      Int
   idproprietario   Int
