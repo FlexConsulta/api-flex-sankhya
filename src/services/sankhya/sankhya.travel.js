@@ -13,41 +13,70 @@ import { ModelOwner } from "../../models/owners.js";
 import { ModelVehicle } from "../../models/vehicles.js";
 import { enum_viagem_cancelado } from "@prisma/client";
 
-const createNewTravels = async (dataParsed) => {
+const dataValidate = async (travel) => {
   let modelTravel = new ModelTravel();
   let modelDriver = new ModelDriver();
   let modelOwner = new ModelOwner();
   let modelVehicle = new ModelVehicle();
+
+  const clearData = () => {
+    modelTravel = null;
+    modelDriver = null;
+    modelOwner = null;
+    modelVehicle = null;
+    return {
+      id_motorista: undefined,
+      id_proprietario: undefined,
+      id_veiculo: undefined,
+      isValidData: undefined,
+    };
+  };
+
+  const id = await modelTravel.getTravelIDByClientNumber(travel.numero_cliente);
+  if (id) return clearData();
+
+  const id_motorista = await modelDriver.getDriverIDByCpf(travel.cpf_motorista);
+  if (!id_motorista) return clearData();
+
+  const id_proprietario = await modelOwner.getOwnerIDByCpfOrCnpj(
+    travel.cpf_cnpj_proprietario
+  );
+  if (!id_proprietario) return clearData();
+
+  const id_veiculo = await modelVehicle.getVehicleIDByLicensePlate(
+    travel.placa_veiculo
+  );
+  if (!id_veiculo) return clearData();
+
+  clearData();
+
+  return { id_motorista, id_proprietario, id_veiculo, isValidData: true };
+};
+
+const createNewTravels = async (dataParsed) => {
+  // console.log(dataParsed);
+
   let newTravels = [];
 
   const filterTravels = async (index) => {
     let travel = dataParsed[index];
     if (!travel) return;
 
-    // const id = await modelTravel.getTravelIDByClientNumber(
-    //   travel.cod_ordem_carga
-    // );
-    const id_motorista = await modelDriver.getDriverIDByCpf(
-      travel.cpf_motorista
-    );
-    const id_proprietario = await modelOwner.getOwnerIDByCpfOrCnpj(
-      travel.cpf_cnpj_proprietario
-    );
-    const id_veiculo = await modelVehicle.getVehicleIDByLicensePlate(
-      travel.placa_veiculo
-    );
-
     travel["viagem_cancelado"] =
       travel.viagem_cancelado === "S"
-        ? enum_viagem_cancelado.Inativo
-        : enum_viagem_cancelado.Ativo;
+        ? enum_viagem_cancelado.S
+        : enum_viagem_cancelado.N;
 
-    delete travel.cod_ordem_carga;
+    const { id_motorista, id_proprietario, id_veiculo, isValidData } =
+      dataValidate(travel);
+
     delete travel.cpf_motorista;
     delete travel.cpf_cnpj_proprietario;
     delete travel.placa_veiculo;
 
-    if (id_motorista && id_proprietario && id_veiculo) {
+    // console.log(travel, id_motorista, id_proprietario, id_veiculo, isValidData);
+
+    if (isValidData) {
       newTravels.push({
         ...travel,
         id_motorista,
@@ -63,6 +92,8 @@ const createNewTravels = async (dataParsed) => {
 
   await filterTravels(0);
 
+  // console.log(newTravels);
+
   if (newTravels.length > 0) {
     await prisma.viagem.createMany({
       data: newTravels,
@@ -71,7 +102,7 @@ const createNewTravels = async (dataParsed) => {
   }
 
   newTravels = null;
-  modelTravel = null;
+  // modelTravel = null;
 };
 
 const updateTravels = async (dataParsed) => {
@@ -79,9 +110,9 @@ const updateTravels = async (dataParsed) => {
   const updateTravel = async (index) => {
     let travel = dataParsed[index];
     if (!travel) return;
-    //console.log("travel", travel.cod_ordem_carga);
+    //console.log("travel", travel.numero_cliente);
     const id = await modelTravel.getTravelIDByClientNumber(
-      travel.cod_ordem_carga
+      travel.numero_cliente
     );
 
     travel["viagem_cancelado"] =
@@ -89,7 +120,6 @@ const updateTravels = async (dataParsed) => {
         ? enum_viagem_cancelado.Inativo
         : enum_viagem_cancelado.Ativo;
 
-    delete travel.cod_ordem_carga;
     delete travel.cpf_motorista;
     delete travel.cpf_cnpj_proprietario;
     delete travel.placa_veiculo;
@@ -283,15 +313,17 @@ export async function SankhyaServiceTravel(syncType) {
             dt_atualizacao: getDateTimeFromString(
               item[`f${field.find((item) => item.name == "DTALTER").idx}`]?.$
             ),
-            cod_ordem_carga:
+            numero_cliente:
               item[`f${field.find((item) => item.name == "ORDEMCARGA").idx}`]
                 ?.$,
             cpf_motorista: item[
               `f${field.find((item) => item.name == "AD_CGCCPF_MOT").idx}`
             ]?.$?.replaceAll(".", "").replaceAll("-", ""),
-            cpf_cnpj_proprietario:
-              item[`f${field.find((item) => item.name == "AD_CGC_ANTT").idx}`]
-                ?.$,
+            cpf_cnpj_proprietario: item[
+              `f${field.find((item) => item.name == "AD_CGC_ANTT").idx}`
+            ]?.$?.replaceAll(".", "")
+              ?.replaceAll("/", "")
+              ?.replaceAll("-", ""),
             placa_veiculo:
               item[`f${field.find((item) => item.name == "Veiculo_PLACA").idx}`]
                 ?.$,
@@ -300,8 +332,8 @@ export async function SankhyaServiceTravel(syncType) {
 
       if (syncType == syncTypes.created) {
         await createNewTravels(dataParsed);
-        // } else {
-        //   await updateTravels(dataParsed);
+      } else {
+        await updateTravels(dataParsed);
       }
 
       dataParsed = null;

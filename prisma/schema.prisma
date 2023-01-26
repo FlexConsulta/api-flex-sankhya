@@ -60,8 +60,8 @@ model IntegracaoSankhya {
 }
 
 enum enum_viagem_cancelado {
-  Ativo   @map("N")
-  Inativo @map("S")
+  N @map("N")
+  S @map("S")
 }
 
 enum enum_status_motorista {
