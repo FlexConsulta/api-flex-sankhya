@@ -24,9 +24,9 @@ const createNewTravels = async (dataParsed) => {
     let travel = dataParsed[index];
     if (!travel) return;
 
-    const id = await modelTravel.getTravelIDByClientNumber(
-      travel.cod_ordem_carga
-    );
+    // const id = await modelTravel.getTravelIDByClientNumber(
+    //   travel.cod_ordem_carga
+    // );
     const id_motorista = await modelDriver.getDriverIDByCpf(
       travel.cpf_motorista
     );
@@ -47,7 +47,7 @@ const createNewTravels = async (dataParsed) => {
     delete travel.cpf_cnpj_proprietario;
     delete travel.placa_veiculo;
 
-    if (!id && id_motorista && id_proprietario && id_veiculo) {
+    if (id_motorista && id_proprietario && id_veiculo) {
       newTravels.push({
         ...travel,
         id_motorista,
@@ -300,8 +300,8 @@ export async function SankhyaServiceTravel(syncType) {
 
       if (syncType == syncTypes.created) {
         await createNewTravels(dataParsed);
-      } else {
-        await updateTravels(dataParsed);
+        // } else {
+        //   await updateTravels(dataParsed);
       }
 
       dataParsed = null;
