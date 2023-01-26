@@ -225,9 +225,7 @@ export async function SankhyaServiceTravel(syncType) {
         )
         .map((item) => {
           return {
-            idcliente: Number(
-              item[`f${field.find((item) => item.name == "CODPARCCLI").idx}`]?.$
-            ),
+            idcliente: Number(process.env.ID_CUSTOMER),
             dt_viagem: getDateTimeFromString(
               item[`f${field.find((item) => item.name == "DHSAIDA").idx}`]?.$,
               true
