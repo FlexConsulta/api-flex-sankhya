@@ -43,9 +43,9 @@ const connectSankhya = async () => {
 
 const checkTime = () => {
   setTimeout(async () => {
-    const [, minuto] = new Date().toLocaleTimeString().split(":");
-
-    if (minuto == 58) {
+    const [hora, minuto] = new Date().toLocaleTimeString().split(":");
+    const horaPar = hora % 2;
+    if (horaPar == 0 && minuto == 1) {
       await connectSankhya();
     }
     checkTime();

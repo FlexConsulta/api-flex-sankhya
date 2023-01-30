@@ -228,7 +228,8 @@ export async function SankhyaServiceTravel(syncType) {
           (item) =>
             item[`f${field.find((item) => item.name == "CODPARCCLI").idx}`]
               ?.$ &&
-            item[`f${field.find((item) => item.name == "DHSAIDA").idx}`]?.$ &&
+            item[`f${field.find((item) => item.name == "DHINCLUSAO").idx}`]
+              ?.$ &&
             item[
               `f${
                 field.find((item) => item.name == "CidadeOrigem_NOMECID").idx
@@ -256,8 +257,9 @@ export async function SankhyaServiceTravel(syncType) {
           return {
             idcliente: Number(process.env.ID_CUSTOMER),
             dt_viagem: getDateTimeFromString(
-              item[`f${field.find((item) => item.name == "DHSAIDA").idx}`]?.$,
-              true
+              item[`f${field.find((item) => item.name == "DHINCLUSAO").idx}`]
+                ?.$,
+              false
             ),
             mercadoria:
               item[

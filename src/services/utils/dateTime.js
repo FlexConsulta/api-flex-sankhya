@@ -10,7 +10,7 @@ export const getDateTimeFromString = (str, nullLabel = false) => {
 
   const [hours, minutes, seconds] = timeValues.split(":");
 
-  return new Date(
+  let dateConverted = new Date(
     +year,
     +month - 1,
     +day,
@@ -19,6 +19,10 @@ export const getDateTimeFromString = (str, nullLabel = false) => {
     +seconds,
     0
   );
+
+  if (dateConverted > new Date()) dateConverted = new Date();
+
+  return dateConverted;
 };
 
 export const getDateTimeNow = () => {
