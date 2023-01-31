@@ -1,5 +1,4 @@
-[
-  { name: "AD_SOLPAGTMULTA" },
+[ { name: "AD_SOLPAGTMULTA" },
   { name: "RESPONSAVELSEGURO" },
   { name: "AD_ID" },
   { name: "TIPDIST" },
