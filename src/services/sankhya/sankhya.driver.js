@@ -187,7 +187,7 @@ export async function SankhyaServiceDriver(syncType) {
           },
           entity: {
             fieldset: {
-              list: "NOMEPARC,CGC_CPF,AD_N_REG_CNH,AD_EMIS_AT_CNH,AD_DT_PRIM_HAB,DTNASC,ATIVO,AD_DTINCLUSAO,DTALTER,CODPARC",
+              list: "NOMEPARC,CGC_CPF,AD_N_REG_CNH,AD_EMIS_AT_CNH,AD_DT_PRIM_HAB,DTNASC,ATIVO,AD_DTINCLUSAO,DTALTER,CODPARC,BLOQUEADO",
             },
           },
         },
@@ -225,7 +225,7 @@ export async function SankhyaServiceDriver(syncType) {
             dt_emissao_cnh: getDateTimeFromString(item.f3?.$, true),
             dt_primeira_cnh: getDateTimeFromString(item.f4?.$, true),
             dt_nascimento: getDateTimeFromString(item.f5?.$, true),
-            ativo: item.f6.$ == "S",
+            ativo: item?.f10?.$ != "S" && item.f6.$ == "S",
             dt_criacao: getDateTimeFromString(item?.f7?.$),
             dt_atualizacao: getDateTimeFromString(item?.f8?.$),
           };
