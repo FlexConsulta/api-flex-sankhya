@@ -20,6 +20,9 @@ const refreshStatusDriver = async (dataParsed) => {
 
     const id = await modelDriver.getDriverIDByCpf(newStatusDriver.cpf_mot);
 
+    if (!id)
+      throw new Error(`Motorista não encontrado ${newStatusDriver.cpf_mot}`);
+
     newStatusDriver["idmotorista"] = id;
     newStatusDriver["idcliente"] = Number(process.env.ID_CUSTOMER);
     newStatusDriver["dt_cliente"] = newStatusDriver.dt_criacao;

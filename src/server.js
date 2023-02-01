@@ -41,18 +41,15 @@ const connectSankhya = async () => {
   console.log("Process finished");
 };
 
-const checkTime = () => {
+const checkTime = (time, sleep) => {
   setTimeout(async () => {
-    const [hora, minuto] = new Date().toLocaleTimeString().split(":");
-    const horaPar = hora % 2;
-    if (horaPar == 0 && minuto == 1) {
-      await connectSankhya();
-    }
-    checkTime();
-  }, 6000); //60000
+    await connectSankhya();
+
+    checkTime(120, 60000);
+  }, time * sleep);
 };
 
-checkTime();
+checkTime(1, 1);
 
 // connectSankhya();
 
