@@ -226,8 +226,6 @@ export async function SankhyaServiceTravel(syncType) {
       let dataParsed = data
         .filter(
           (item) =>
-            item[`f${field.find((item) => item.name == "CODPARCCLI").idx}`]
-              ?.$ &&
             item[`f${field.find((item) => item.name == "DHINCLUSAO").idx}`]
               ?.$ &&
             item[
