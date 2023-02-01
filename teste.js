@@ -1,5 +1,4 @@
-[
-  { name: "RESPONSAVELSEGURO" },
+[ { name: "RESPONSAVELSEGURO" },
   { name: "AD_ID" },
   { name: "TIPDIST" },
   { name: "DTRETORNO" },

@@ -359,6 +359,8 @@ export async function SankhyaServiceTravel(syncType) {
         await logsIntegration.updateSync(logId, page, stateTypes.success);
       }
     } catch (error) {
+      const dataRequestBody = requestBody(page);
+      console.log(dataRequestBody);
       console.log(`Error on getData with page ${page}:`, error);
       //faz updateStatus error
       await logsIntegration.updateSync(logId, page, stateTypes.error);

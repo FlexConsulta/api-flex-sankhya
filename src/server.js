@@ -69,6 +69,6 @@ const connectSankhya = async (syncOptions) => {
 
 app.listen(process.env.PORT, async () => {
   console.log(`App started on ${process.env.PORT} 👍 `);
-  connectSankhya({ driver: true, owner: true, veichile: true, travel: false });
+  connectSankhya({ driver: true, owner: true, veichile: true, travel: true });
   // checkTime(1, 1);
 });
