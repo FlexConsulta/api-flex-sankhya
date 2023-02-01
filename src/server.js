@@ -45,7 +45,7 @@ const checkTime = (time, sleep) => {
   setTimeout(async () => {
     await connectSankhya();
 
-    checkTime(120, 60000);
+    // checkTime(120, 60000);
   }, time * sleep);
 };
 

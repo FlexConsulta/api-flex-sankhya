@@ -158,11 +158,15 @@ export async function SankhyaServiceOwner(syncType) {
           expression: {
             $:
               syncType == syncTypes.created
-                ? `this.AD_DTINCLUSAO > TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
-                : `this.DTALTER > TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`,
+                ? `this.TRANSPORTADORA = 'S' AND this.AD_DTINCLUSAO > TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
+                : `this.TRANSPORTADORA = 'S' AND this.DTALTER > TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`,
           },
         }
-      : {};
+      : {
+          expression: {
+            $: `this.TRANSPORTADORA = 'S'`,
+          },
+        };
 
     return {
       requestBody: {
@@ -171,13 +175,6 @@ export async function SankhyaServiceOwner(syncType) {
           includePresentationFields: "S",
           offsetPage: page,
           criteria,
-          dataRow: {
-            localFields: {
-              TRANSPORTADORA: {
-                $: "S",
-              },
-            },
-          },
           entity: {
             fieldset: {
               list: "NOMEPARC,CGC_CPF,ATIVO,AD_DTINCLUSAO,DTALTER,CODPARC",
@@ -192,7 +189,7 @@ export async function SankhyaServiceOwner(syncType) {
 
   const getData = async (page) => {
     try {
-      console.log(page, "page");
+      console.log(page, syncType, "page");
 
       let dataRequestBody = requestBody(page);
 
