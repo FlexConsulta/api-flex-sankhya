@@ -86,6 +86,9 @@ const refreshStatusVehicle = async (dataParsed) => {
       newStatusVehicle.placa
     );
 
+    if (!id)
+      throw new Error(`Veículo não encontrado ${newStatusVehicle.placa}`);
+
     newStatusVehicle["idveiculo"] = id;
     newStatusVehicle["idcliente"] = Number(process.env.ID_CUSTOMER);
     newStatusVehicle["dt_cliente"] = newStatusVehicle.dt_criacao;

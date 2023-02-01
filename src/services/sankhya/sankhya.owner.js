@@ -86,6 +86,11 @@ const refreshStatusOwner = async (dataParsed) => {
       newStatusOwner.cpf_cnpj_prop
     );
 
+    if (!id)
+      throw new Error(
+        `Proprietário não encontrado ${newStatusOwner.cpf_cnpj_prop}`
+      );
+
     newStatusOwner["idproprietario"] = id;
     newStatusOwner["idcliente"] = Number(process.env.ID_CUSTOMER);
     newStatusOwner["dt_cliente"] = newStatusOwner.dt_criacao;
