@@ -200,7 +200,7 @@ export async function SankhyaServiceTravel(syncType) {
 
   const getData = async (page) => {
     try {
-      console.log(page, "page");
+      console.log(page, syncType, "page");
 
       let dataRequestBody = requestBody(page);
 

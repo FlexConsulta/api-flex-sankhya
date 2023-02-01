@@ -165,11 +165,15 @@ export async function SankhyaServiceDriver(syncType) {
           expression: {
             $:
               syncType == syncTypes.created
-                ? `this.AD_DTINCLUSAO > TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
-                : `this.DTALTER > TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`,
+                ? `this.MOTORISTA = 'S' AND this.TIPPESSOA = 'F' AND this.AD_DTINCLUSAO > TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
+                : `this.MOTORISTA = 'S' AND this.TIPPESSOA = 'F' AND this.DTALTER > TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`,
           },
         }
-      : {};
+      : {
+          expression: {
+            $: `this.MOTORISTA = 'S' AND this.TIPPESSOA = 'F' `,
+          },
+        };
 
     return {
       requestBody: {
@@ -178,16 +182,6 @@ export async function SankhyaServiceDriver(syncType) {
           includePresentationFields: "S",
           offsetPage: page,
           criteria,
-          dataRow: {
-            localFields: {
-              TIPPESSOA: {
-                $: "F",
-              },
-              MOTORISTA: {
-                $: "S",
-              },
-            },
-          },
           entity: {
             fieldset: {
               list: "NOMEPARC,CGC_CPF,AD_N_REG_CNH,AD_EMIS_AT_CNH,AD_DT_PRIM_HAB,DTNASC,ATIVO,AD_DTINCLUSAO,DTALTER,CODPARC,BLOQUEADO",
@@ -202,7 +196,7 @@ export async function SankhyaServiceDriver(syncType) {
 
   const getData = async (page) => {
     try {
-      console.log(page, "page");
+      console.log(page, syncType, "page");
 
       let dataRequestBody = requestBody(page);
 
