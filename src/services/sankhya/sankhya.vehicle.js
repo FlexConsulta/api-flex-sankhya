@@ -39,12 +39,6 @@ const createNewVehicles = async (dataParsed) => {
     });
   }
 
-  // console.log("veiculos sankhya", dataParsed.length);
-  // console.log(
-  //   "veiculos incluídos",
-  //   newVehicle.filter((driver) => driver.id == null).length
-  // );
-
   newVehicle = null;
   modelVehicle = null;
 };
