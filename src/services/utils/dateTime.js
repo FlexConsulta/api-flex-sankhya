@@ -52,6 +52,6 @@ export const getDateFormated = (date) => {
   const month = dateArray[2] + dateArray[3];
   const year = dateArray[4] + dateArray[5] + dateArray[6] + dateArray[7];
 
-  const dateFormated = day + ' ' + month + ' ' + year + ' ' + time;
+  const dateFormated = year + '-' + month + '-' + day + ' ' + time;
   return dateFormated;
 };
