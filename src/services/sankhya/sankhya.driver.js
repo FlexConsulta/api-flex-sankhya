@@ -1,44 +1,39 @@
-import { apiMge } from './api.js';
-import { SankhyaServiceAuthenticate } from './sankhya.authenticate.js';
-import 'dotenv/config';
-import { syncTypes } from '../../shared/syncTypes.js';
-import { LogsIntegration } from '../../models/logs_integration.js';
-import { prisma } from '../../database/prismaClient.js';
-import { getDateFormated, getDateTimeFromString } from '../utils/dateTime.js';
-import { stateTypes } from '../../shared/stateTypes.js';
-import { tableTypes } from '../../shared/tableTypes.js';
-import { ModelDriver } from '../../models/drivers.js';
-import { enum_status_motorista } from '@prisma/client';
-import { findFieldIndex } from '../utils/findFieldIndex.js';
+import { apiMge } from "./api.js";
+import { SankhyaServiceAuthenticate } from "./sankhya.authenticate.js";
+import "dotenv/config";
+import { syncTypes } from "../../shared/syncTypes.js";
+import { LogsIntegration } from "../../models/logs_integration.js";
+import { prisma } from "../../database/prismaClient.js";
+import { getDateFormated } from "../utils/dateTime.js";
+import { stateTypes } from "../../shared/stateTypes.js";
+import { tableTypes } from "../../shared/tableTypes.js";
+import { ModelDriver } from "../../models/drivers.js";
+import { enum_status_motorista } from "@prisma/client";
+import { findFieldIndex } from "../utils/findFieldIndex.js";
+import { showLog } from "../utils/memory.js";
 
 const refreshStatusDriver = async (dataParsed) => {
   let modelDriver = new ModelDriver();
 
   const loopDrivers = async (index) => {
-    let newStatusDriver = dataParsed[index];
-    if (!newStatusDriver) return;
-    //console.log("loopDriver", index);
+    if (!dataParsed[index]) return;
 
-    const id = await modelDriver.getDriverIDByCpf(newStatusDriver.cpf_mot);
+    const idmotorista = await modelDriver.getDriverIDByCpf(
+      dataParsed[index].cpf_mot
+    );
 
-    if (!id)
-      throw new Error(`Motorista não encontrado ${newStatusDriver.cpf_mot}`);
+    if (!idmotorista)
+      throw new Error(`Motorista não encontrado ${dataParsed[index].cpf_mot}`);
 
-    newStatusDriver['idmotorista'] = id;
-    newStatusDriver['idcliente'] = Number(process.env.ID_CUSTOMER);
-    newStatusDriver['dt_cliente'] = newStatusDriver.dt_criacao;
-    newStatusDriver['status_motorista'] =
-      newStatusDriver.ativo === true
-        ? enum_status_motorista.Ativo
-        : enum_status_motorista.Vencido;
-
-    delete newStatusDriver.nome_mot;
-    delete newStatusDriver.cpf_mot;
-    delete newStatusDriver.cnh_mot;
-    delete newStatusDriver.dt_emissao_cnh;
-    delete newStatusDriver.dt_primeira_cnh;
-    delete newStatusDriver.dt_nascimento;
-    delete newStatusDriver.ativo;
+    let newStatusDriver = {
+      idmotorista,
+      idcliente: Number(process.env.ID_CUSTOMER),
+      dt_cliente: dataParsed[index].dt_criacao,
+      dt_atualizacao: new Date(),
+      dt_criacao: dataParsed[index].dt_criacao,
+      status_motorista:
+        enum_status_motorista[dataParsed[index].status_motorista],
+    };
 
     await prisma.status_motoristas.upsert({
       where: {
@@ -74,6 +69,7 @@ const updateDrivers = async (dataParsed) => {
 
     delete driver.nome_mot;
     delete driver.cpf_mot;
+    delete driver.status_motorista;
 
     if (id) {
       await prisma.motorista.update({
@@ -98,37 +94,39 @@ const createNewDriver = async (dataParsed) => {
   let newDrivers = [];
 
   const filterDrivers = async (index) => {
-    let driver = dataParsed[index];
-    if (!driver) return;
+    if (!dataParsed[index]) return;
 
-    const id = await modelDriver.getDriverIDByCpf(driver.cpf_mot);
+    const id = await modelDriver.getDriverIDByCpf(dataParsed[index].cpf_mot);
 
     if (!id) {
+      let driver = {
+        nome_mot: dataParsed[index].nome_mot,
+        cpf_mot: dataParsed[index].cpf_mot,
+        cnh_mot: dataParsed[index].cnh_mot,
+        dt_criacao: dataParsed[index].dt_criacao,
+        dt_atualizacao: dataParsed[index].dt_atualizacao,
+        ativo: true,
+      };
+
       newDrivers.push({
         ...driver,
       });
+
+      driver = null;
     }
 
-    driver = null;
     await filterDrivers(index + 1);
   };
 
   await filterDrivers(0);
 
   if (newDrivers.length > 0) {
-    //console.log("newDrivers", newDrivers);
     const data = await prisma.motorista.createMany({
       data: newDrivers,
       skipDuplicates: true,
     });
-    console.log('motoristas criados', data);
+    console.log("motoristas criados", data);
   }
-
-  //console.log("motoristas sankhya", dataParsed.length);
-  //console.log(
-  //   "motoristas incluídos",
-  //   newDrivers.filter((driver) => driver.id == null).length
-  // );
 
   newDrivers = null;
   modelDriver = null;
@@ -160,7 +158,7 @@ export async function SankhyaServiceDriver(syncType) {
       stateTypes.success
     );
 
-  const requestBody = (page) => {
+  const requestBody = () => {
     const where = lastSync
       ? syncType == syncTypes.created
         ? `AND DTCAD >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
@@ -176,22 +174,18 @@ export async function SankhyaServiceDriver(syncType) {
 
   apiMge.defaults.headers.Cookie = `JSESSIONID=${token}`;
 
-  const getData = async (page) => {
+  const getData = async () => {
     try {
-      console.log(page, syncType, 'page');
+      console.log(syncType, "page");
 
-      let dataRequestBody = requestBody(page);
+      let dataRequestBody = requestBody();
 
       let response = await apiMge.get(
         `service.sbr?serviceName=DbExplorerSP.executeQuery&outputType=json`,
         { data: { ...dataRequestBody } }
       );
 
-      //const totalRecords = response.data.responseBody.entities.total;
-
-      let fields = Array.isArray(response.data.responseBody.fieldsMetadata)
-        ? response.data.responseBody.fieldsMetadata
-        : [response.data.responseBody.fieldsMetadata];
+      let fields = response?.data?.responseBody?.fieldsMetadata;
 
       let data = Array.isArray(response.data.responseBody.rows)
         ? response.data.responseBody.rows
@@ -201,13 +195,13 @@ export async function SankhyaServiceDriver(syncType) {
 
       let dataParsed = data.map((item) => {
         return {
-          nome_mot: item[findFieldIndex('NOMEPARC', fields)],
-          cpf_mot: item[findFieldIndex('CGC_CPF', fields)],
-          cnh_mot: item[findFieldIndex('CNH', fields)],
-          ativo: item[findFieldIndex('STATUS', fields)],
-          dt_criacao: getDateFormated(item[findFieldIndex('DTCAD', fields)]),
+          nome_mot: item[findFieldIndex("NOMEPARC", fields)],
+          cpf_mot: item[findFieldIndex("CGC_CPF", fields)],
+          cnh_mot: item[findFieldIndex("CNH", fields)],
+          status_motorista: item[findFieldIndex("STATUS", fields)],
+          dt_criacao: getDateFormated(item[findFieldIndex("DTCAD", fields)]),
           dt_atualizacao: getDateFormated(
-            item[findFieldIndex('DATAFLEX', fields)]
+            item[findFieldIndex("DATAFLEX", fields)]
           ),
         };
       });
@@ -225,27 +219,13 @@ export async function SankhyaServiceDriver(syncType) {
       response = null;
       dataRequestBody = null;
 
-      const used = process.memoryUsage().heapUsed / 1024 / 1024;
-      console.log(
-        `The app uses approximately ${Math.round(used * 100) / 100} MB`
-      );
+      showLog(dataParsed?.length);
 
       await logsIntegration.updateSync(logId, page, stateTypes.inProgress); // gravar dados de sincronizacao no banco de dados (data e hora e tipo, se foi created ou updated), pagina, nome do sincronismo
-      // if (process.env.SANKHYA_PAGINATION == totalRecords) {
-      //   await getData(page + 1);
-      // } else {
-      //   console.log(syncType, stateTypes.success);
-      //   //fazer updateStatus success
       await logsIntegration.updateSync(logId, page, stateTypes.success);
-      // }
     } catch (error) {
       console.log(`Error on getData with page ${page}:`, error);
-      //faz updateStatus error
       await logsIntegration.updateSync(logId, page, stateTypes.error);
-
-      // if (process.env.IGNORE_ERROR == 'YES') {
-      //   await getData(page + 1);
-      // }
     }
   };
 
