@@ -6,7 +6,7 @@ import cors from "cors";
 import "dotenv/config";
 import { SankhyaServiceVehicle } from "./services/sankhya/sankhya.vehicle.js";
 import { syncTypes } from "./shared/syncTypes.js";
-import { SankhyaServiceOwner } from "./services/sankhya/sankhya.owner.js";
+import { SankhyaServiceOwner } from "./services/sankhya/owners/sankhya.owner.js";
 import { SankhyaServiceDriver } from "./services/sankhya/drivers/index.js";
 import { SankhyaServiceTravel } from "./services/sankhya/sankhya.travel.js";
 

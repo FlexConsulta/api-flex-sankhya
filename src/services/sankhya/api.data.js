@@ -1,6 +1,11 @@
 import { tableTypes } from "../../shared/tableTypes.js";
 import { apiMge, getSankhyaToken } from "./api.js";
-import { requestBodyDrivers } from "./api.body.js";
+import {
+  requestBodyDrivers,
+  requestBodyOwners,
+  requestBodyTravels,
+  requestBodyVehicles,
+} from "./api.body.js";
 
 export const getSankhyaData = async (tableType, syncType, lastSync) => {
   const token = await getSankhyaToken();
@@ -12,7 +17,17 @@ export const getSankhyaData = async (tableType, syncType, lastSync) => {
     case tableTypes.motoristas:
       dataRequestBody = requestBodyDrivers(syncType, lastSync);
       break;
+    case tableTypes.proprietarios:
+      dataRequestBody = requestBodyOwners(syncType, lastSync);
+      break;
+    case tableTypes.viagens:
+      dataRequestBody = requestBodyTravels(syncType, lastSync);
+      break;
+    case tableTypes.veiculos:
+      dataRequestBody = requestBodyVehicles(syncType, lastSync);
+      break;
   }
+
   let response;
   try {
     response = await apiMge.get(
