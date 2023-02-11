@@ -1,5 +1,5 @@
 import { apiMge } from "./api.js";
-import { SankhyaServiceAuthenticate } from "./sankhya.authenticate.js";
+import { SankhyaServiceAuthenticate } from "./authenticate.js";
 import "dotenv/config";
 import { syncTypes } from "../../shared/syncTypes.js";
 import { LogsIntegration } from "../../models/logs_integration.js";

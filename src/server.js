@@ -7,7 +7,7 @@ import "dotenv/config";
 import { SankhyaServiceVehicle } from "./services/sankhya/sankhya.vehicle.js";
 import { syncTypes } from "./shared/syncTypes.js";
 import { SankhyaServiceOwner } from "./services/sankhya/sankhya.owner.js";
-import { SankhyaServiceDriver } from "./services/sankhya/sankhya.driver.js";
+import { SankhyaServiceDriver } from "./services/sankhya/drivers/index.js";
 import { SankhyaServiceTravel } from "./services/sankhya/sankhya.travel.js";
 
 const app = express();
