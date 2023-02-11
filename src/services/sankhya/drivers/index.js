@@ -1,4 +1,3 @@
-import { apiMge, getSankhyaToken } from "../api.js";
 import "dotenv/config";
 import { syncTypes } from "../../../shared/syncTypes.js";
 import { getDateFormated } from "../../utils/dateTime.js";
@@ -8,14 +7,11 @@ import { showLog } from "../../utils/memory.js";
 import { createNewDriver } from "./create.js";
 import { updateDrivers } from "./update.js";
 import { refreshStatusDriver } from "./status.js";
-import { requestBodyDrivers } from "../api.body.js";
 import { getLastSync, updateLog } from "../logs.controller.js";
 import { tableTypes } from "../../../shared/tableTypes.js";
+import { getSankhyaData } from "../api.data.js";
 
 export async function SankhyaServiceDriver(syncType) {
-  const token = await getSankhyaToken();
-  apiMge.defaults.headers.Cookie = `JSESSIONID=${token}`;
-
   const { lastSync, logId } = await getLastSync(
     syncType,
     tableTypes.motoristas
@@ -25,18 +21,11 @@ export async function SankhyaServiceDriver(syncType) {
     try {
       console.log(syncType, "get drivers data");
 
-      let dataRequestBody = requestBodyDrivers(syncType, lastSync);
-
-      let response = await apiMge.get(
-        `service.sbr?serviceName=DbExplorerSP.executeQuery&outputType=json`,
-        { data: { ...dataRequestBody } }
+      const { fields, data } = await getSankhyaData(
+        tableTypes.motoristas,
+        syncType,
+        lastSync
       );
-
-      let fields = response?.data?.responseBody?.fieldsMetadata;
-
-      let data = Array.isArray(response.data.responseBody.rows)
-        ? response.data.responseBody.rows
-        : [response.data.responseBody.rows];
 
       if (!data) return;
 
@@ -62,9 +51,6 @@ export async function SankhyaServiceDriver(syncType) {
       await refreshStatusDriver(dataParsed);
 
       dataParsed = null;
-      data = null;
-      response = null;
-      dataRequestBody = null;
 
       showLog(dataParsed?.length);
 
