@@ -48,7 +48,7 @@ export const requestBodyTravels = (syncType, lastSync) => {
 
   return {
     requestBody: {
-      sql: `SELECT * FROM AD_VWTBCFLEXCTE WHERE NUVIAGEM IS NOT NULL ${where}`,
+      sql: `SELECT * FROM AD_VWTBCFLEXCTE WHERE DATAFLEX is not null and DTEMISSAO is not null and NUVIAGEM > 0 ${where}`,
     },
   };
 };

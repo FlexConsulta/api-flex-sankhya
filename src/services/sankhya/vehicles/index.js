@@ -2,23 +2,23 @@ import "dotenv/config";
 import { syncTypes } from "../../../shared/syncTypes.js";
 import { getDateFormated } from "../../utils/dateTime.js";
 import { stateTypes } from "../../../shared/stateTypes.js";
-import { findFieldIndex } from "../../utils/findFieldIndex.js";
-import { showLog } from "../../utils/memory.js";
-import { createNewDriver } from "./create.js";
-import { updateDrivers } from "./update.js";
-import { refreshStatusDriver } from "./status.js";
-import { getLastSync, updateLog } from "../logs.controller.js";
 import { tableTypes } from "../../../shared/tableTypes.js";
+import { getLastSync, updateLog } from "../logs.controller.js";
 import { getSankhyaData } from "../api.data.js";
+import { findFieldIndex } from "../../utils/findFieldIndex.js";
+import { createNewVehicles } from "./create.js";
+import { updateVehicles } from "./update.js";
+import { refreshStatusVehicle } from "./status.js";
+import { showLog } from "../../utils/memory.js";
 
-export async function SankhyaServiceDriver(syncType) {
-  const syncTable = tableTypes.motoristas;
+export async function SankhyaServiceVehicle(syncType) {
+  const syncTable = tableTypes.veiculos;
 
   const { lastSync, logId } = await getLastSync(syncType, syncTable);
 
   const getData = async () => {
     try {
-      console.log(syncType, "get drivers data");
+      console.log(syncType, `get ${syncTable} data`);
 
       const { fields, data } = await getSankhyaData(
         syncTable,
@@ -30,11 +30,10 @@ export async function SankhyaServiceDriver(syncType) {
 
       let dataParsed = data.map((item) => {
         return {
-          nome_mot: item[findFieldIndex("NOMEPARC", fields)],
-          cpf_mot: item[findFieldIndex("CGC_CPF", fields)],
-          cnh_mot: item[findFieldIndex("CNH", fields)],
+          placa: item[findFieldIndex("PLACACAVALO", fields)],
+          renavam: item[findFieldIndex("RENAVAMCAVALO", fields)],
           status: item[findFieldIndex("STATUS", fields)],
-          dt_criacao: getDateFormated(item[findFieldIndex("DTCAD", fields)]),
+          dt_criacao: getDateFormated(item[findFieldIndex("DHINC", fields)]),
           dt_atualizacao: getDateFormated(
             item[findFieldIndex("DATAFLEX", fields)]
           ),
@@ -42,12 +41,12 @@ export async function SankhyaServiceDriver(syncType) {
       });
 
       if (syncType == syncTypes.created) {
-        await createNewDriver(dataParsed);
+        await createNewVehicles(dataParsed);
       } else {
-        await updateDrivers(dataParsed);
+        await updateVehicles(dataParsed);
       }
 
-      await refreshStatusDriver(dataParsed);
+      await refreshStatusVehicle(dataParsed);
 
       dataParsed = null;
 
@@ -55,7 +54,7 @@ export async function SankhyaServiceDriver(syncType) {
 
       await updateLog(logId, stateTypes.success);
     } catch (error) {
-      console.log(`Error on getData :`, error);
+      console.log(error);
     }
   };
 

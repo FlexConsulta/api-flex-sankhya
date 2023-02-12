@@ -11,6 +11,8 @@ const getStatusMotorista = (value) => {
       return enum_status_motorista.Bloqueado;
     case 2:
       return enum_status_motorista.Vencido;
+    default:
+      return enum_status_motorista.Ativo;
   }
 };
 
@@ -33,7 +35,7 @@ export const refreshStatusDriver = async (dataParsed) => {
       dt_cliente: dataParsed[index].dt_criacao,
       dt_atualizacao: new Date(),
       dt_criacao: dataParsed[index].dt_criacao,
-      status_motorista: getStatusMotorista(dataParsed[index].status_motorista),
+      status_motorista: getStatusMotorista(dataParsed[index].status),
     };
 
     await prisma.status_motoristas.upsert({

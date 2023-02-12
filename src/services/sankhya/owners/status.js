@@ -10,6 +10,8 @@ const getStatusOwner = (value) => {
       return enum_status_proprietario.Bloqueado;
     case 2:
       return enum_status_proprietario.Vencido;
+    default:
+      return enum_status_proprietario.Ativo;
   }
 };
 
@@ -34,9 +36,7 @@ export const refreshStatusOwner = async (dataParsed) => {
       dt_cliente: dataParsed[index].dt_criacao,
       dt_atualizacao: new Date(),
       dt_criacao: dataParsed[index].dt_criacao,
-      status_proprietario: getStatusOwner(
-        dataParsed[index].status_proprietario
-      ),
+      status_proprietario: getStatusOwner(dataParsed[index].status),
     };
 
     await prisma.status_proprietarios.upsert({

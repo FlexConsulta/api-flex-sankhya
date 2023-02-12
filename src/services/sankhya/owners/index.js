@@ -13,12 +13,11 @@ import { showLog } from "../../utils/memory.js";
 
 export async function SankhyaServiceOwner(syncType) {
   const syncTable = tableTypes.proprietarios;
-
   const { lastSync, logId } = await getLastSync(syncType, syncTable);
 
   const getData = async () => {
     try {
-      console.log(syncType, "get owners data");
+      console.log(syncType, `get ${syncTable} data`);
 
       const { fields, data } = await getSankhyaData(
         syncTable,
@@ -30,8 +29,8 @@ export async function SankhyaServiceOwner(syncType) {
 
       let dataParsed = data.map((item) => {
         return {
-          nome_prop: item[findFieldIndex("CGC_CPF", fields)],
-          cpf_cnpj_prop: item[findFieldIndex("RAZAOSOCIAL", fields)],
+          cpf_cnpj_prop: item[findFieldIndex("CGC_CPF", fields)],
+          nome_prop: item[findFieldIndex("RAZAOSOCIAL", fields)],
           status: item[findFieldIndex("STATUS", fields)],
           antt_prop: item[findFieldIndex("ANTT", fields)],
           dt_criacao: getDateFormated(item[findFieldIndex("DTCAD", fields)]),
