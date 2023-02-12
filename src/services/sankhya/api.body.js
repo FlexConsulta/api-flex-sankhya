@@ -1,6 +1,6 @@
 import { syncTypes } from "../../shared/syncTypes.js";
 
-export const requestBodyDrivers = (syncType, lastSync) => {
+export const requestBodyDrivers = (syncType, lastSync, pWhere = null) => {
   const where = lastSync
     ? syncType == syncTypes.created
       ? `AND DTCAD >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
@@ -13,12 +13,18 @@ export const requestBodyDrivers = (syncType, lastSync) => {
     },
   };
 };
-export const requestBodyOwners = (syncType, lastSync) => {
-  const where = lastSync
-    ? syncType == syncTypes.created
-      ? `AND DTCAD >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
-      : `AND DATAFLEX >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
-    : ` `;
+export const requestBodyOwners = (syncType, lastSync, pWhere = null) => {
+  // testar aspas do parametro
+  let where;
+  if (pWhere) {
+    where = `AND CGC_CP = '${pWhere}'`;
+  } else {
+    where = lastSync
+      ? syncType == syncTypes.created
+        ? `AND DTCAD >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
+        : `AND DATAFLEX >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
+      : ` `;
+  }
 
   return {
     requestBody: {
@@ -26,7 +32,7 @@ export const requestBodyOwners = (syncType, lastSync) => {
     },
   };
 };
-export const requestBodyVehicles = (syncType, lastSync) => {
+export const requestBodyVehicles = (syncType, lastSync, pWhere = null) => {
   const where = lastSync
     ? syncType == syncTypes.created
       ? `AND DHINC >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
@@ -39,7 +45,7 @@ export const requestBodyVehicles = (syncType, lastSync) => {
     },
   };
 };
-export const requestBodyTravels = (syncType, lastSync) => {
+export const requestBodyTravels = (syncType, lastSync, pWhere = null) => {
   const where = lastSync
     ? syncType == syncTypes.created
       ? `AND DTEMISSAO >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`

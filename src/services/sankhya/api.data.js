@@ -7,7 +7,12 @@ import {
   requestBodyVehicles,
 } from "./api.body.js";
 
-export const getSankhyaData = async (tableType, syncType, lastSync) => {
+export const getSankhyaData = async (
+  tableType,
+  syncType,
+  lastSync,
+  where = null
+) => {
   const token = await getSankhyaToken();
   apiMge.defaults.headers.Cookie = `JSESSIONID=${token}`;
 
@@ -15,16 +20,16 @@ export const getSankhyaData = async (tableType, syncType, lastSync) => {
 
   switch (tableType) {
     case tableTypes.motoristas:
-      dataRequestBody = requestBodyDrivers(syncType, lastSync);
+      dataRequestBody = requestBodyDrivers(syncType, lastSync, where);
       break;
     case tableTypes.proprietarios:
-      dataRequestBody = requestBodyOwners(syncType, lastSync);
+      dataRequestBody = requestBodyOwners(syncType, lastSync, where);
       break;
     case tableTypes.viagens:
-      dataRequestBody = requestBodyTravels(syncType, lastSync);
+      dataRequestBody = requestBodyTravels(syncType, lastSync, where);
       break;
     case tableTypes.veiculos:
-      dataRequestBody = requestBodyVehicles(syncType, lastSync);
+      dataRequestBody = requestBodyVehicles(syncType, lastSync, where);
       break;
   }
 

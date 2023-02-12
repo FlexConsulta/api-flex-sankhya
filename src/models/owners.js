@@ -10,6 +10,17 @@ export class ModelOwner {
       take: 1,
     });
 
+    // if (!owner?.length > 0) {
+    // await SankhyaServiceOwner(type, cpf_cnpj_prop)
+    //
+
+    // const owner = await prisma.proprietario.findMany({
+    //   where: {
+    //     cpf_cnpj_prop,
+    //   },
+    //   take: 1,
+    // });
+    //  }
     return owner?.length > 0 ? owner[0].id : undefined;
   }
 
