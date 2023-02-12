@@ -11,57 +11,53 @@ import { findFieldIndex } from "../../utils/findFieldIndex.js";
 import { getSankhyaData } from "../api.data.js";
 import { showLog } from "../../utils/memory.js";
 
-export const getData = async (
-  // mudar esse nome
-  syncType,
+export async function SankhyaServiceOwner(syncType, cpf_cnpj_prop = null ) {
+  const syncTable = tableTypes.proprietarios;
+  const { lastSync, logId } = await getLastSync(syncType, syncTable);
 
-  cnpj = null
-) => {
-  try {
-    const syncTable = tableTypes.proprietarios;
-    const { lastSync, logId } = await getLastSync(syncType, syncTable);
+  const getData = async () => {
+    try {
+      console.log(syncType, `get ${syncTable} data`);
 
-    console.log(syncType, `get ${syncTable} data`);
+      const { fields, data } = await getSankhyaData(
+        syncTable,
+        syncType,
+        lastSync,
+        cpf_cnpj_prop
+      );
 
-    const { fields, data } = await getSankhyaData(
-      syncTable,
-      syncType,
-      lastSync,
-      cnpj
-    );
+      if (!data) return;
 
-    if (!data) return;
+      let dataParsed = data.map((item) => {
+        return {
+          cpf_cnpj_prop: item[findFieldIndex("CGC_CPF", fields)],
+          nome_prop: item[findFieldIndex("RAZAOSOCIAL", fields)],
+          status: item[findFieldIndex("STATUS", fields)],
+          antt_prop: item[findFieldIndex("ANTT", fields)],
+          dt_criacao: getDateFormated(item[findFieldIndex("DTCAD", fields)]),
+          dt_atualizacao: getDateFormated(
+            item[findFieldIndex("DATAFLEX", fields)]
+          ),
+        };
+      });
 
-    let dataParsed = data.map((item) => {
-      return {
-        cpf_cnpj_prop: item[findFieldIndex("CGC_CPF", fields)],
-        nome_prop: item[findFieldIndex("RAZAOSOCIAL", fields)],
-        status: item[findFieldIndex("STATUS", fields)],
-        antt_prop: item[findFieldIndex("ANTT", fields)],
-        dt_criacao: getDateFormated(item[findFieldIndex("DTCAD", fields)]),
-        dt_atualizacao: getDateFormated(
-          item[findFieldIndex("DATAFLEX", fields)]
-        ),
-      };
-    });
+      if (syncType == syncTypes.created) {
+        await createNewOwners(dataParsed);
+      } else {
+        await updateOwners(dataParsed);
+      }
 
-    if (syncType == syncTypes.created) {
-      await createNewOwners(dataParsed);
-    } else {
-      await updateOwners(dataParsed);
+      await refreshStatusOwner(dataParsed);
+
+      dataParsed = null;
+
+      showLog(dataParsed?.length);
+
+      await updateLog(logId, stateTypes.success);
+    } catch (error) {
+      console.log(`Error on getData :`, error);
     }
+  };
 
-    await refreshStatusOwner(dataParsed);
-
-    dataParsed = null;
-
-    showLog(dataParsed?.length);
-
-    await updateLog(logId, stateTypes.success);
-  } catch (error) {
-    console.log(`Error on getData :`, error);
-  }
-};
-export async function SankhyaServiceOwner(syncType) {
-  await getData(syncType);
+  await getData(0);
 }
