@@ -51,7 +51,7 @@ export async function SankhyaServiceOwner(syncType, cpf_cnpj_prop = null) {
         await patchNewOwners(dataParsed);
       }
 
-      //await refreshStatusOwner(dataParsed);
+      await refreshStatusOwner(dataParsed);
 
       dataParsed = null;
 
