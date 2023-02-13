@@ -1,4 +1,4 @@
-import { syncTypes } from "../../shared/syncTypes.js";
+import { syncTypes } from '../../shared/syncTypes.js';
 
 export const requestBodyDrivers = (syncType, lastSync, pWhere = null) => {
   const where = lastSync
@@ -14,10 +14,9 @@ export const requestBodyDrivers = (syncType, lastSync, pWhere = null) => {
   };
 };
 export const requestBodyOwners = (syncType, lastSync, pWhere = null) => {
-  // testar aspas do parametro
   let where;
   if (pWhere) {
-    where = `AND CGC_CP = '${pWhere}'`;
+    where = `AND CGC_CPF = '${pWhere}'`;
   } else {
     where = lastSync
       ? syncType == syncTypes.created
