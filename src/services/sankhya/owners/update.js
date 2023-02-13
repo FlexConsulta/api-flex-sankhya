@@ -5,8 +5,8 @@ export const updateOwners = async (dataParsed) => {
   let modelOwner = new ModelOwner();
 
   const updateOwner = async (index) => {
-    if (!dataParsed[index]) return;
     const data = await dataParsed[index];
+    if (!data) return;
 
     const id = await modelOwner.getOwnerIDByCpfOrCnpj(data.cpf_cnpj_prop);
 

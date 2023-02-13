@@ -1,6 +1,6 @@
-import { enum_status_proprietario } from "@prisma/client";
-import { prisma } from "../../../database/prismaClient.js";
-import { ModelOwner } from "../../../models/owners.js";
+import { enum_status_proprietario } from '@prisma/client';
+import { prisma } from '../../../database/prismaClient.js';
+import { ModelOwner } from '../../../models/owners.js';
 
 const getStatusOwner = (value) => {
   switch (value) {
@@ -19,24 +19,23 @@ export const refreshStatusOwner = async (dataParsed) => {
   let modelOwner = new ModelOwner();
 
   const loopOwner = async (index) => {
-    if (!dataParsed[index]) return;
+    const data = await dataParsed[index];
+    if (!data) return;
 
     const idproprietario = await modelOwner.getOwnerIDByCpfOrCnpj(
-      dataParsed[index].cpf_cnpj_prop
+      data.cpf_cnpj_prop
     );
 
     if (!idproprietario)
-      throw new Error(
-        `Proprietário não encontrado ${dataParsed[index].cpf_cnpj_prop}`
-      );
+      throw new Error(`Proprietário não encontrado ${data.cpf_cnpj_prop}`);
 
     let newStatusOwner = {
       idproprietario,
       idcliente: Number(process.env.ID_CUSTOMER),
-      dt_cliente: dataParsed[index].dt_criacao,
+      dt_cliente: data.dt_criacao,
       dt_atualizacao: new Date(),
-      dt_criacao: dataParsed[index].dt_criacao,
-      status_proprietario: getStatusOwner(dataParsed[index].status),
+      dt_criacao: data.dt_criacao,
+      status_proprietario: getStatusOwner(data.status),
     };
 
     await prisma.status_proprietarios.upsert({
