@@ -21,9 +21,8 @@ export class ModelOwner {
         },
         take: 1,
       });
-      console.log('id2', owner[0].id);
     }
-    //console.log('id', owner[0].id);
+
     return owner?.length > 0 ? owner[0].id : undefined;
   }
 
