@@ -1,11 +1,16 @@
 import { syncTypes } from '../../shared/syncTypes.js';
 
-export const requestBodyDrivers = (syncType, lastSync, pWhere = null) => {
-  const where = lastSync
-    ? syncType == syncTypes.created
-      ? `AND DTCAD >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
-      : `AND DATAFLEX >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
-    : ` `;
+export const requestBodyDrivers = (syncType, lastSync, dWhere = null) => {
+  let where;
+  if (dWhere) {
+    where = `AND CGC_CPF = '${dWhere}'`;
+  } else {
+    where = lastSync
+      ? syncType == syncTypes.created
+        ? `AND DTCAD >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
+        : `AND DATAFLEX >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
+      : ` `;
+  }
 
   return {
     requestBody: {

@@ -1,6 +1,6 @@
-import "dotenv/config";
-import { prisma } from "../../../database/prismaClient.js";
-import { ModelDriver } from "../../../models/drivers.js";
+import 'dotenv/config';
+import { prisma } from '../../../database/prismaClient.js';
+import { ModelDriver } from '../../../models/drivers.js';
 
 export const updateDrivers = async (dataParsed) => {
   let modelDriver = new ModelDriver();
