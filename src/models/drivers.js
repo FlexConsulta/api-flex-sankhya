@@ -21,7 +21,6 @@ export class ModelDriver {
         },
         take: 1,
       });
-      console.log('id2', driver[0].id);
     }
 
     return driver?.length > 0 ? driver[0].id : undefined;
