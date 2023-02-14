@@ -32,7 +32,7 @@ export const patchNewOwners = async (dataParsed) => {
       data: newOwners,
       skipDuplicates: true,
     });
-    console.log('created');
+    
   }
 
   newOwners = null;
