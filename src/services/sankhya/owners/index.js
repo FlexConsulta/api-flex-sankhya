@@ -44,11 +44,11 @@ export async function SankhyaServiceOwner(syncType, cpf_cnpj_prop = null) {
       //console.log(dataParsed[0]);
 
       if (syncType == syncTypes.created) {
-        await createNewOwners(dataParsed);
+        await createNewOwners([...dataParsed]);
       } else if (syncType == syncTypes.updated) {
-        await updateOwners(dataParsed);
+        await updateOwners([...dataParsed]);
       } else if (syncType == syncTypes.patch) {
-        await patchNewOwners(dataParsed);
+        await patchNewOwners([...dataParsed]);
       }
 
       await refreshStatusOwner(dataParsed);

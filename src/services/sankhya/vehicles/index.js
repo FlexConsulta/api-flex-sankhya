@@ -43,11 +43,11 @@ export async function SankhyaServiceVehicle(syncType, placa = null) {
       });
 
       if (syncType == syncTypes.created) {
-        await createNewVehicles(dataParsed);
+        await createNewVehicles([...dataParsed]);
       } else if (syncType == syncTypes.updated) {
-        await updateVehicles(dataParsed);
+        await updateVehicles([...dataParsed]);
       } else if (syncType == syncTypes.patch) {
-        await patchNewVehicles(dataParsed);
+        await patchNewVehicles([...dataParsed]);
       }
 
       await refreshStatusVehicle(dataParsed);

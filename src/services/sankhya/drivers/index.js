@@ -44,11 +44,11 @@ export async function SankhyaServiceDriver(syncType, cpf_mot = null) {
       });
 
       if (syncType == syncTypes.created) {
-        await createNewDriver(dataParsed);
+        await createNewDriver([...dataParsed]);
       } else if (syncType == syncTypes.updated) {
-        await updateDrivers(dataParsed);
+        await updateDrivers([...dataParsed]);
       } else if (syncType == syncTypes.patch) {
-        await patchNewDriver(dataParsed);
+        await patchNewDriver([...dataParsed]);
       }
 
       await refreshStatusDriver(dataParsed);
