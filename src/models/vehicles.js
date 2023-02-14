@@ -1,4 +1,6 @@
-import { prisma } from "../database/prismaClient.js";
+import { prisma } from '../database/prismaClient.js';
+import { SankhyaServiceVehicle } from '../services/sankhya/vehicles/index.js';
+import { syncTypes } from '../shared/syncTypes.js';
 
 export class ModelVehicle {
   async getVehicleIDByLicensePlate(placa) {
@@ -9,6 +11,17 @@ export class ModelVehicle {
       },
       take: 1,
     });
+
+    if (!vehicle?.length > 0) {
+      await SankhyaServiceVehicle(syncTypes.patch, placa);
+
+      const vehicle = await prisma.veiculo.findMany({
+        where: {
+          placa,
+        },
+        take: 1,
+      });
+    }
 
     return vehicle?.length > 0 ? vehicle[0].id : undefined;
   }

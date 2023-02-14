@@ -36,13 +36,18 @@ export const requestBodyOwners = (syncType, lastSync, pWhere = null) => {
     },
   };
 };
-export const requestBodyVehicles = (syncType, lastSync, pWhere = null) => {
-  const where = lastSync
-    ? syncType == syncTypes.created
-      ? `AND DHINC >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
-      : `AND DATAFLEX >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
-    : ` `;
+export const requestBodyVehicles = (syncType, lastSync, vWhere = null) => {
+  let where;
 
+  if (vWhere) {
+    where = `AND PLACACAVALO = '${vWhere}'`;
+  } else {
+    where = lastSync
+      ? syncType == syncTypes.created
+        ? `AND DHINC >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
+        : `AND DATAFLEX >= TO_DATE('${lastSync}', 'dd/mm/yyyy HH24:MI:SS')`
+      : ` `;
+  }
   return {
     requestBody: {
       sql: `SELECT * FROM AD_VWTBCFLEXVEI WHERE PLACACAVALO IS NOT NULL ${where}`,
