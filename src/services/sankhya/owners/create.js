@@ -6,18 +6,19 @@ export const createNewOwners = async (dataParsed) => {
   let newOwners = [];
 
   const filterOwners = async (index) => {
-    const data = await dataParsed[index];
-    if (!data) return;
+    if (!dataParsed[index]) return;
 
-    const id = await modelOwner.getOwnerIDByCpfOrCnpj(data.cpf_cnpj_prop);
+    const id = await modelOwner.getOwnerIDByCpfOrCnpj(
+      dataParsed[index].cpf_cnpj_prop
+    );
 
     let owner = {
       ativo: true,
-      nome_prop: data.nome_prop,
-      cpf_cnpj_prop: data.cpf_cnpj_prop,
-      dt_criacao: data.dt_criacao,
-      dt_atualizacao: data.dt_atualizacao,
-      antt_prop: data.antt_prop,
+      nome_prop: dataParsed[index].nome_prop,
+      cpf_cnpj_prop: dataParsed[index].cpf_cnpj_prop,
+      dt_criacao: dataParsed[index].dt_criacao,
+      dt_atualizacao: dataParsed[index].dt_atualizacao,
+      antt_prop: dataParsed[index].antt_prop,
     };
 
     if (!id) {

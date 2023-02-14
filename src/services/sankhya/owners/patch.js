@@ -7,15 +7,14 @@ export const patchNewOwners = async (dataParsed) => {
 
   const filterOwners = async (index) => {
     if (!dataParsed[index]) return;
-    const data = await dataParsed[index];
 
     let owner = {
       ativo: true,
-      nome_prop: data.nome_prop,
-      cpf_cnpj_prop: data.cpf_cnpj_prop,
-      dt_criacao: data.dt_criacao,
-      dt_atualizacao: data.dt_atualizacao,
-      antt_prop: data.antt_prop,
+      nome_prop: dataParsed[index].nome_prop,
+      cpf_cnpj_prop: dataParsed[index].cpf_cnpj_prop,
+      dt_criacao: dataParsed[index].dt_criacao,
+      dt_atualizacao: dataParsed[index].dt_atualizacao,
+      antt_prop: dataParsed[index].antt_prop,
     };
 
     newOwners.push({
