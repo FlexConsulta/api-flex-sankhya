@@ -63,7 +63,7 @@ const checkTime = () => {
   setTimeout(async () => {
     const [hora, minuto] = new Date().toLocaleTimeString().split(":");
 
-    if (hora == 16 && minuto == 55) {
+    if (hora == 23 && minuto == 55) {
       await connectSankhya({
         driver: true,
         owner: true,
@@ -77,6 +77,13 @@ const checkTime = () => {
 
 app.listen(process.env.PORT, async () => {
   console.log(`App started on ${process.env.PORT} 👍 `);
+
+  await connectSankhya({
+    driver: true,
+    owner: true,
+    veichile: true,
+    travel: true,
+  });
 
   checkTime();
 });
