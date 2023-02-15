@@ -44,3 +44,29 @@ export const getDateTimeNow = () => {
     0
   );
 };
+
+export const getDateFormated = (value, nullable = true) => {
+  //2023-02-11T13:56:57
+
+  const dateAux = new Date();
+  const [, timezone] = dateAux.toISOString().split(".");
+
+  if (nullable && !value) return null;
+
+  if (!nullable && !value) return new Date();
+
+  const [date, time] = value.split(" ");
+  const newDate = [
+    date.slice(4, 8),
+    "-",
+    date.slice(2, 4),
+    "-",
+    date.slice(0, 2),
+    "T",
+    time,
+    ".",
+    timezone,
+  ].join("");
+
+  return newDate;
+};

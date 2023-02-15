@@ -4,11 +4,11 @@ import morgan from "morgan";
 import cors from "cors";
 
 import "dotenv/config";
-import { SankhyaServiceVehicle } from "./services/sankhya/sankhya.vehicle.js";
+import { SankhyaServiceVehicle } from "./services/sankhya/vehicles/index.js";
 import { syncTypes } from "./shared/syncTypes.js";
-import { SankhyaServiceOwner } from "./services/sankhya/sankhya.owner.js";
-import { SankhyaServiceDriver } from "./services/sankhya/sankhya.driver.js";
-import { SankhyaServiceTravel } from "./services/sankhya/sankhya.travel.js";
+import { SankhyaServiceOwner } from "./services/sankhya/owners/index.js";
+import { SankhyaServiceDriver } from "./services/sankhya/drivers/index.js";
+import { SankhyaServiceTravel } from "./services/sankhya/travels/index.js";
 
 const app = express();
 
@@ -31,9 +31,9 @@ const connectSankhya = async (syncOptions) => {
 
   if (syncOptions.owner) {
     console.log(" ");
-    console.log("Sync owners started");
-    await SankhyaServiceOwner(syncTypes.created);
-    console.log("Sync owners created");
+    // console.log('Sync owners started');
+    // await SankhyaServiceOwner(syncTypes.created);
+    // console.log('Sync owners created');
     await SankhyaServiceOwner(syncTypes.updated);
     console.log("Sync owners updated");
   }
@@ -59,16 +59,24 @@ const connectSankhya = async (syncOptions) => {
   console.log("Process finished");
 };
 
-// const checkTime = (time, sleep) => {
-//   setTimeout(async () => {
-//     await connectSankhya({ driver: true, owner: true, veichile: true, travel: true });
+const checkTime = () => {
+  setTimeout(async () => {
+    const [hora, minuto] = new Date().toLocaleTimeString().split(":");
 
-//     checkTime(120, 60000);
-//   }, time * sleep);
-// };
+    if (hora == 16 && minuto == 55) {
+      await connectSankhya({
+        driver: true,
+        owner: true,
+        veichile: true,
+        travel: true,
+      });
+    }
+    checkTime();
+  }, 6000); //60000
+};
 
 app.listen(process.env.PORT, async () => {
   console.log(`App started on ${process.env.PORT} 👍 `);
-  connectSankhya({ driver: true, owner: true, veichile: true, travel: true });
-  // checkTime(1, 1);
+
+  checkTime();
 });

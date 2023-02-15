@@ -6,7 +6,7 @@ export class LogsIntegration {
     const lastSync = await prisma.integracaoSankhya.findMany({
       where: {
         type_sync: syncType,
-        table_name: tableName
+        table_name: tableName,
       },
       orderBy: {
         last_sync: "desc",
@@ -15,7 +15,11 @@ export class LogsIntegration {
     });
 
     if (lastSync?.length > 0) {
-      return lastSync[0].last_sync.toLocaleDateString() + " " + lastSync[0].last_sync.toLocaleTimeString();
+      return (
+        lastSync[0].last_sync.toLocaleDateString() +
+        " " +
+        lastSync[0].last_sync.toLocaleTimeString()
+      );
     } else {
       return null;
     }
@@ -28,21 +32,21 @@ export class LogsIntegration {
         type_sync: syncType,
         page: 0,
         table_name: tableName,
-        state
+        state,
       },
     });
 
     return newSync.id;
   }
 
-  async updateSync(id, page, state) {
+  async updateSync(id, state) {
     const updateSync = await prisma.integracaoSankhya.update({
       where: {
         id,
       },
       data: {
-        page,
-        state
+        page: 0,
+        state,
       },
     });
     return updateSync;

@@ -27,6 +27,7 @@ model Proprietario {
   ativo          Boolean  @default(true)
   dt_criacao     DateTime
   dt_atualizacao DateTime
+  antt_prop      String?
   Viagem         Viagem[]
 
   @@map("proprietarios")
