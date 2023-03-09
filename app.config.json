@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "name": "app-v1-sync-sankhya-4003",
+      "name": "api.sankhya.sync.brasilcentral-4003",
       "script": "yarn",
       "interpreter": "none",
       "args": "start",
