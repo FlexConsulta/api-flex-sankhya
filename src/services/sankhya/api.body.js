@@ -1,4 +1,4 @@
-import { syncTypes } from '../../shared/syncTypes.js';
+import { syncTypes } from "../../shared/syncTypes.js";
 
 export const requestBodyDrivers = (syncType, lastSync, dWhere = null) => {
   let where;

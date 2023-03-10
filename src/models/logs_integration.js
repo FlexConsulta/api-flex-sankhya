@@ -1,5 +1,5 @@
 import { prisma } from "../database/prismaClient.js";
-import { getDateTimeNow } from "../services/utils/dateTime.js";
+// import { getDateTimeNow } from "../services/utils/dateTime.js";
 
 export class LogsIntegration {
   async findLastSync(syncType, tableName) {
@@ -26,9 +26,11 @@ export class LogsIntegration {
   }
 
   async createSync(tableName, syncType, state) {
+    // const last_sync = getDateTimeNow();
+    // console.log("last_sync--->>", last_sync);
     const newSync = await prisma.integracaoSankhya.create({
       data: {
-        last_sync: getDateTimeNow(),
+        last_sync: new Date(),
         type_sync: syncType,
         page: 0,
         table_name: tableName,

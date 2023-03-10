@@ -1,11 +1,11 @@
-import { tableTypes } from '../../shared/tableTypes.js';
-import { apiMge, getSankhyaToken } from './api.js';
+import { tableTypes } from "../../shared/tableTypes.js";
+import { apiMge, getSankhyaToken } from "./api.js";
 import {
   requestBodyDrivers,
   requestBodyOwners,
   requestBodyTravels,
   requestBodyVehicles,
-} from './api.body.js';
+} from "./api.body.js";
 
 export const getSankhyaData = async (
   tableType,
