@@ -1,10 +1,11 @@
 import { LogsIntegration } from "../../models/logs_integration.js";
 import { stateTypes } from "../../shared/stateTypes.js";
 import { syncTypes } from "../../shared/syncTypes.js";
+import { getDateTimeNow } from "../utils/dateTime.js";
 
 export const getLastSync = async (syncType, table) => {
   let logsIntegration = new LogsIntegration();
-  const lastSync = await logsIntegration.findLastSync(syncType, table); // pegar a data e hora da ultima sincronização do banco de dados
+  const lastSync = await logsIntegration.findLastSync(syncType, table);
 
   const logId = await logsIntegration.createSync(
     table,
@@ -19,7 +20,7 @@ export const getLastSync = async (syncType, table) => {
     );
   }
   logsIntegration = null;
-  return { lastSync, logId };
+  return { lastSync: getDateTimeNow(lastSync), logId };
 };
 
 export const updateLog = async (logId, stateType) => {

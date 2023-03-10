@@ -25,24 +25,28 @@ export const getDateTimeFromString = (str, nullLabel = false) => {
   return dateConverted;
 };
 
-export const getDateTimeNow = () => {
-  const str = new Date().toLocaleString();
+export const getDateTimeNow = (value) => {
+  let str = new Date().toLocaleString("pt-BR", {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: false,
+  });
+  if (value)
+    str = new Date(value).toLocaleString("pt-BR", {
+      day: "numeric",
+      month: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      hour12: false,
+    });
 
-  const [dateValues, timeValues] = str.split(" ");
-
-  const [day, month, year] = dateValues.split("/");
-
-  const [hours, minutes, seconds] = timeValues.split(":");
-
-  return new Date(
-    +year,
-    +month - 1,
-    +day,
-    +hours + Number(process.env.UTC_TIME_ZONE || 0),
-    +minutes,
-    +seconds,
-    0
-  );
+  return str;
 };
 
 export const getDateFormated = (value, nullable = true) => {
