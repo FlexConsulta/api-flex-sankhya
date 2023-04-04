@@ -1,6 +1,6 @@
-import { prisma } from '../database/prismaClient.js';
-import { SankhyaServiceOwner } from '../services/sankhya/owners/index.js';
-import { syncTypes } from '../shared/syncTypes.js';
+import { prisma } from "../database/prismaClient.js";
+import { SankhyaServiceOwner } from "../services/sankhya/owners/index.js";
+import { syncTypes } from "../shared/syncTypes.js";
 
 export class ModelOwner {
   async getOwnerIDByCpfOrCnpj(cpf_cnpj_prop) {

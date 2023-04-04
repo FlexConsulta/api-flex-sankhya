@@ -31,9 +31,9 @@ const connectSankhya = async (syncOptions) => {
 
   if (syncOptions.owner) {
     console.log(" ");
-    // console.log('Sync owners started');
-    // await SankhyaServiceOwner(syncTypes.created);
-    // console.log('Sync owners created');
+    console.log("Sync owners started");
+    await SankhyaServiceOwner(syncTypes.created);
+    console.log("Sync owners created");
     await SankhyaServiceOwner(syncTypes.updated);
     console.log("Sync owners updated");
   }
@@ -78,12 +78,12 @@ const checkTime = () => {
 app.listen(process.env.PORT, async () => {
   console.log(`App started on ${process.env.PORT} 👍 `);
 
-  await connectSankhya({
-    driver: true,
-    owner: true,
-    veichile: true,
-    travel: true,
-  });
+  // await connectSankhya({
+  //   driver: false,
+  //   owner: false,
+  //   veichile: false,
+  //   travel: true,
+  // });
 
   checkTime();
 });

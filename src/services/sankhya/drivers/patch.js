@@ -1,9 +1,8 @@
-import 'dotenv/config';
-import { prisma } from '../../../database/prismaClient.js';
-import { ModelDriver } from '../../../models/drivers.js';
+import "dotenv/config";
+import { prisma } from "../../../database/prismaClient.js";
+import { ModelDriver } from "../../../models/drivers.js";
 
 export const patchNewDriver = async (dataParsed) => {
-  let modelDriver = new ModelDriver();
   let newDrivers = [];
 
   const filterDrivers = async (index) => {
@@ -30,13 +29,11 @@ export const patchNewDriver = async (dataParsed) => {
   await filterDrivers(0);
 
   if (newDrivers.length > 0) {
-    const data = await prisma.motorista.createMany({
+    await prisma.motorista.createMany({
       data: newDrivers,
       skipDuplicates: true,
     });
-    console.log('motoristas criados', data);
   }
 
   newDrivers = null;
-  modelDriver = null;
 };
