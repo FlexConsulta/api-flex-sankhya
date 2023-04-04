@@ -1,6 +1,6 @@
-import { prisma } from '../database/prismaClient.js';
-import { SankhyaServiceDriver } from '../services/sankhya/drivers/index.js';
-import { syncTypes } from '../shared/syncTypes.js';
+import { prisma } from "../database/prismaClient.js";
+import { SankhyaServiceDriver } from "../services/sankhya/drivers/index.js";
+import { syncTypes } from "../shared/syncTypes.js";
 
 export class ModelDriver {
   async getDriverIDByCpf(cpf_mot) {

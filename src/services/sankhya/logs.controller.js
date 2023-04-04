@@ -20,7 +20,7 @@ export const getLastSync = async (syncType, table) => {
     );
   }
   logsIntegration = null;
-  return { lastSync: getDateTimeNow(lastSync), logId };
+  return { lastSync, logId };
 };
 
 export const updateLog = async (logId, stateType) => {
