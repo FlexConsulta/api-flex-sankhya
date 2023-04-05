@@ -25,16 +25,16 @@ export const createNewTravels = async (dataParsed) => {
       dt_cancelamento: dataParsed[index].dt_cancelamento,
       idcliente: dataParsed[index].idcliente,
 
-      dt_cliente: dataParsed[index].dt_viagem,
-      dt_criacao: dataParsed[index].dt_criacao,
-      dt_atualizacao: dataParsed[index].dt_atualizacao,
+      dt_cliente: dataParsed[index].dt_atualizacao,
+      dt_criacao: new Date(),
+      dt_atualizacao: new Date(),
 
       idmotorista,
       idproprietario,
       idveiculo,
     };
 
-    console.log(idmotorista, idproprietario, idveiculo, isValidData);
+    // console.log(idmotorista, idproprietario, idveiculo, isValidData);
 
     if (isValidData) {
       newTravels.push({

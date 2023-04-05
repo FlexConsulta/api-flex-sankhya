@@ -48,6 +48,15 @@ export const getDateTimeNow = (value) => {
 
   return str;
 };
+export const dateLessThanNow = ({ lastSync }) => {
+  const currentDate = new Date();
+  const dateRef = new Date(lastSync);
+
+  return (
+    currentDate > dateRef &&
+    currentDate.toLocaleDateString() !== lastSync.toLocaleDateString()
+  );
+};
 
 export const getDateFormated = (value, nullable = true) => {
   //2023-02-11T13:56:57

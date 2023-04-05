@@ -16,14 +16,23 @@ export const createNewDriver = async (dataParsed) => {
         nome_mot: dataParsed[index].nome_mot,
         cpf_mot: dataParsed[index].cpf_mot,
         cnh_mot: dataParsed[index].cnh_mot,
-        dt_criacao: dataParsed[index].dt_criacao,
-        dt_atualizacao: dataParsed[index].dt_atualizacao,
+        dt_criacao: new Date(),
+        dt_atualizacao: new Date(),
         ativo: true,
       };
 
       newDrivers.push({
         ...driver,
       });
+
+      if (newDrivers.length >= 50) {
+        await prisma.motorista.createMany({
+          data: newDrivers,
+          skipDuplicates: true,
+        });
+      }
+
+      newDrivers = [];
 
       driver = null;
     }

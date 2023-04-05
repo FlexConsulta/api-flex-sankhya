@@ -1,5 +1,5 @@
-import { prisma } from '../../../database/prismaClient.js';
-import { ModelOwner } from '../../../models/owners.js';
+import { prisma } from "../../../database/prismaClient.js";
+import { ModelOwner } from "../../../models/owners.js";
 
 export const createNewOwners = async (dataParsed) => {
   let modelOwner = new ModelOwner();
@@ -16,8 +16,8 @@ export const createNewOwners = async (dataParsed) => {
       ativo: true,
       nome_prop: dataParsed[index].nome_prop,
       cpf_cnpj_prop: dataParsed[index].cpf_cnpj_prop,
-      dt_criacao: dataParsed[index].dt_criacao,
-      dt_atualizacao: dataParsed[index].dt_atualizacao,
+      dt_criacao: new Date(),
+      dt_atualizacao: new Date(),
       antt_prop: dataParsed[index].antt_prop,
     };
 

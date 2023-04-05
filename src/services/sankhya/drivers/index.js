@@ -17,6 +17,8 @@ export async function SankhyaServiceDriver(syncType, cpf_mot = null) {
 
   const { lastSync, logId } = await getLastSync(syncType, syncTable);
 
+  console.log("lastSync", lastSync);
+
   const getData = async () => {
     try {
       console.log(syncType, "get drivers data");
@@ -28,7 +30,10 @@ export async function SankhyaServiceDriver(syncType, cpf_mot = null) {
         cpf_mot
       );
 
-      if (!data) return;
+      if (!data[0]) {
+        await updateLog(logId, stateTypes.success);
+        return;
+      }
 
       let dataParsed = data.map((item) => {
         return {

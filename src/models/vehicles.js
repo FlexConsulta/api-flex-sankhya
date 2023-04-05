@@ -3,7 +3,7 @@ import { SankhyaServiceVehicle } from "../services/sankhya/vehicles/index.js";
 import { syncTypes } from "../shared/syncTypes.js";
 
 export class ModelVehicle {
-  async getVehicleIDByLicensePlate(placa) {
+  async getVehicleIDByLicensePlate(placa, reconcile = false) {
     // console.log(placa);
     let vehicle = await prisma.veiculo.findMany({
       where: {
@@ -12,7 +12,7 @@ export class ModelVehicle {
       take: 1,
     });
 
-    if (!vehicle?.length > 0) {
+    if (reconcile && !(vehicle?.length > 0)) {
       await SankhyaServiceVehicle(syncTypes.patch, placa);
 
       vehicle = await prisma.veiculo.findMany({

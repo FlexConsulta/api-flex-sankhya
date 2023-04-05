@@ -1,5 +1,5 @@
-import { prisma } from '../../../database/prismaClient.js';
-import { ModelOwner } from '../../../models/owners.js';
+import { prisma } from "../../../database/prismaClient.js";
+import { ModelOwner } from "../../../models/owners.js";
 
 export const updateOwners = async (dataParsed) => {
   let modelOwner = new ModelOwner();
@@ -8,7 +8,8 @@ export const updateOwners = async (dataParsed) => {
     if (!dataParsed[index]) return;
 
     const id = await modelOwner.getOwnerIDByCpfOrCnpj(
-      dataParsed[index].cpf_cnpj_prop
+      dataParsed[index].cpf_cnpj_prop,
+      true
     );
 
     let owner = {

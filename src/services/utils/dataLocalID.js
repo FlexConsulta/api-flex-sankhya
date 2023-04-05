@@ -25,16 +25,21 @@ export const getLocalID = async (travel) => {
   const id = await modelTravel.getTravelIDByClientNumber(travel.numero_cliente);
   if (id) return clearData();
 
-  const idmotorista = await modelDriver.getDriverIDByCpf(travel.cpf_motorista);
+  const idmotorista = await modelDriver.getDriverIDByCpf(
+    travel.cpf_motorista,
+    true
+  );
   if (!idmotorista) return clearData();
 
   const idproprietario = await modelOwner.getOwnerIDByCpfOrCnpj(
-    travel.cpf_cnpj_proprietario
+    travel.cpf_cnpj_proprietario,
+    true
   );
   if (!idproprietario) return clearData();
 
   const idveiculo = await modelVehicle.getVehicleIDByLicensePlate(
-    travel.placa_veiculo
+    travel.placa_veiculo,
+    true
   );
 
   if (!idveiculo) return clearData();

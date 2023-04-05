@@ -16,8 +16,8 @@ export const createNewVehicles = async (dataParsed) => {
       ativo: true,
       placa: dataParsed[index].placa,
       renavam: dataParsed[index].renavam,
-      dt_criacao: dataParsed[index].dt_criacao,
-      dt_atualizacao: dataParsed[index].dt_atualizacao,
+      dt_criacao: new Date(),
+      dt_atualizacao: new Date(),
     };
 
     if (!id) {
