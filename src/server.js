@@ -168,9 +168,9 @@ app.listen(process.env.PORT, async () => {
   console.log(`App started on ${process.env.PORT} 👍 `);
 
   await connectSankhya({
-    driver: false,
-    owner: false,
-    veichile: false,
+    driver: true,
+    owner: true,
+    veichile: true,
     travel: true,
   });
 
