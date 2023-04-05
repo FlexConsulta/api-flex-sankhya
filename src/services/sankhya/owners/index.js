@@ -34,7 +34,7 @@ export async function SankhyaServiceOwner(syncType, cpf_cnpj_prop = null) {
       }
       console.log(logId, stateTypes.success);
 
-      console.log(data);
+      // console.log(data);
 
       let dataParsed = data.map((item) => {
         return {
