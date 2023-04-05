@@ -33,6 +33,8 @@ export const getSankhyaData = async (
       break;
   }
 
+  // console.log("dataRequestBody", dataRequestBody);
+
   let response;
   try {
     response = await apiMge.get(

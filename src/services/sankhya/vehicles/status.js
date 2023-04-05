@@ -7,9 +7,9 @@ const getStatusVehicle = (value) => {
     case 0:
       return enum_status_veiculo.Ativo;
     case 1:
-      return enum_status_veiculo.Bloqueado;
-    case 2:
       return enum_status_veiculo.Vencido;
+    case 2:
+      return enum_status_veiculo.Bloqueado;
     default:
       return enum_status_veiculo.Ativo;
   }
@@ -31,7 +31,7 @@ export const refreshStatusVehicle = async (dataParsed) => {
     let newStatusVehicle = {
       idveiculo,
       idcliente: Number(process.env.ID_CUSTOMER),
-      dt_cliente: dataParsed[index].dt_criacao,
+      dt_cliente: dataParsed[index].dt_atualizacao,
       dt_atualizacao: new Date(),
       dt_criacao: dataParsed[index].dt_criacao,
       status_veiculo: getStatusVehicle(dataParsed[index].status),

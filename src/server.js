@@ -9,6 +9,9 @@ import { syncTypes } from "./shared/syncTypes.js";
 import { SankhyaServiceOwner } from "./services/sankhya/owners/index.js";
 import { SankhyaServiceDriver } from "./services/sankhya/drivers/index.js";
 import { SankhyaServiceTravel } from "./services/sankhya/travels/index.js";
+import { dateLessThanNow } from "./services/utils/dateTime.js";
+import { tableTypes } from "./shared/tableTypes.js";
+import { getLastSync } from "./services/sankhya/logs.controller.js";
 
 const app = express();
 
@@ -20,40 +23,126 @@ app.use(morgan("dev"));
 
 const connectSankhya = async (syncOptions) => {
   console.log("Process started");
+
   if (syncOptions.driver) {
-    console.log(" ");
-    console.log("Sync dirvers started");
-    await SankhyaServiceDriver(syncTypes.created);
-    console.log("Sync dirvers created");
-    await SankhyaServiceDriver(syncTypes.updated);
-    console.log("Sync dirvers updated");
+    const syncCreate = async () => {
+      console.log("Sync dirvers started");
+      await SankhyaServiceDriver(syncTypes.created);
+      console.log("Sync dirvers created");
+
+      const { lastSync } = await getLastSync(
+        syncTypes.created,
+        tableTypes.motoristas
+      );
+
+      if (dateLessThanNow({ lastSync })) await syncCreate();
+    };
+    await syncCreate();
+
+    const syncUpdate = async () => {
+      console.log("Sync dirvers started");
+      await SankhyaServiceDriver(syncTypes.updated);
+      console.log("Sync dirvers updated");
+
+      const { lastSync } = await getLastSync(
+        syncTypes.updated,
+        tableTypes.motoristas
+      );
+
+      if (dateLessThanNow({ lastSync })) await syncUpdate();
+    };
+    await syncUpdate();
+    console.log("Sync dirvers finished");
   }
 
   if (syncOptions.owner) {
-    console.log(" ");
-    console.log("Sync owners started");
-    await SankhyaServiceOwner(syncTypes.created);
-    console.log("Sync owners created");
-    await SankhyaServiceOwner(syncTypes.updated);
-    console.log("Sync owners updated");
+    const syncCreate = async () => {
+      console.log("Sync owners started");
+      await SankhyaServiceOwner(syncTypes.created);
+      console.log("Sync owners created");
+
+      const { lastSync } = await getLastSync(
+        syncTypes.created,
+        tableTypes.proprietarios
+      );
+
+      if (dateLessThanNow({ lastSync })) await syncCreate();
+    };
+    await syncCreate();
+
+    const syncUpdate = async () => {
+      console.log("Sync owners started");
+      await SankhyaServiceOwner(syncTypes.updated);
+      console.log("Sync owners updated");
+
+      const { lastSync } = await getLastSync(
+        syncTypes.updated,
+        tableTypes.proprietarios
+      );
+
+      if (dateLessThanNow({ lastSync })) await syncUpdate();
+    };
+    await syncUpdate();
   }
 
   if (syncOptions.veichile) {
-    console.log(" ");
-    console.log("Sync veichiles started");
-    await SankhyaServiceVehicle(syncTypes.created);
-    console.log("Sync veichiles created");
-    await SankhyaServiceVehicle(syncTypes.updated);
-    console.log("Sync veichicles updated");
+    const syncCreate = async () => {
+      console.log("Sync veichiles started");
+      await SankhyaServiceVehicle(syncTypes.created);
+      console.log("Sync veichiles created");
+
+      const { lastSync } = await getLastSync(
+        syncTypes.created,
+        tableTypes.veiculos
+      );
+
+      if (dateLessThanNow({ lastSync })) await syncCreate();
+    };
+    await syncCreate();
+
+    const syncUpdate = async () => {
+      console.log("Sync veichicles started");
+      await SankhyaServiceVehicle(syncTypes.updated);
+      console.log("Sync veichicles updated");
+
+      const { lastSync } = await getLastSync(
+        syncTypes.updated,
+        tableTypes.veiculos
+      );
+
+      if (dateLessThanNow({ lastSync })) await syncUpdate();
+    };
+    await syncUpdate();
   }
 
   if (syncOptions.travel) {
-    console.log(" ");
-    console.log("Sync travels started");
-    await SankhyaServiceTravel(syncTypes.created);
-    console.log("Sync travels created");
-    await SankhyaServiceTravel(syncTypes.updated);
-    console.log("Sync traves updated");
+    const syncTravelCreate = async () => {
+      console.log("Sync travels started");
+      await SankhyaServiceTravel(syncTypes.created);
+      console.log("Sync travels created");
+
+      const { lastSync } = await getLastSync(
+        syncTypes.created,
+        tableTypes.viagens
+      );
+
+      if (dateLessThanNow({ lastSync })) await syncTravelCreate();
+    };
+    await syncTravelCreate();
+
+    const syncTravelUpdate = async () => {
+      console.log("Sync travels started");
+      await SankhyaServiceTravel(syncTypes.updated);
+      console.log("Sync traves updated");
+
+      const { lastSync } = await getLastSync(
+        syncTypes.updated,
+        tableTypes.viagens
+      );
+
+      if (dateLessThanNow({ lastSync })) await syncTravelUpdate();
+    };
+    await syncTravelUpdate();
   }
   console.log(" ");
   console.log("Process finished");
@@ -78,12 +167,12 @@ const checkTime = () => {
 app.listen(process.env.PORT, async () => {
   console.log(`App started on ${process.env.PORT} 👍 `);
 
-  // await connectSankhya({
-  //   driver: false,
-  //   owner: false,
-  //   veichile: false,
-  //   travel: true,
-  // });
+  await connectSankhya({
+    driver: false,
+    owner: false,
+    veichile: false,
+    travel: true,
+  });
 
   checkTime();
 });

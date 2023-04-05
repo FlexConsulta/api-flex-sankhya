@@ -3,7 +3,7 @@ import { SankhyaServiceOwner } from "../services/sankhya/owners/index.js";
 import { syncTypes } from "../shared/syncTypes.js";
 
 export class ModelOwner {
-  async getOwnerIDByCpfOrCnpj(cpf_cnpj_prop) {
+  async getOwnerIDByCpfOrCnpj(cpf_cnpj_prop, reconcile = false) {
     //console.log(cpf_cnpj_prop);
     let owner = await prisma.proprietario.findMany({
       where: {
@@ -12,7 +12,7 @@ export class ModelOwner {
       take: 1,
     });
 
-    if (!owner?.length > 0) {
+    if (reconcile && !(owner?.length > 0)) {
       await SankhyaServiceOwner(syncTypes.patch, cpf_cnpj_prop);
 
       owner = await prisma.proprietario.findMany({

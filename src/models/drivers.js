@@ -3,7 +3,7 @@ import { SankhyaServiceDriver } from "../services/sankhya/drivers/index.js";
 import { syncTypes } from "../shared/syncTypes.js";
 
 export class ModelDriver {
-  async getDriverIDByCpf(cpf_mot) {
+  async getDriverIDByCpf(cpf_mot, reconcile = false) {
     // console.log(cpf_mot);
     let driver = await prisma.motorista.findMany({
       where: {
@@ -12,7 +12,7 @@ export class ModelDriver {
       take: 1,
     });
 
-    if (!driver?.length > 0) {
+    if (reconcile && !(driver?.length > 0)) {
       await SankhyaServiceDriver(syncTypes.patch, cpf_mot);
 
       driver = await prisma.motorista.findMany({

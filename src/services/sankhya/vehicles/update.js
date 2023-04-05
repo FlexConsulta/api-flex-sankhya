@@ -8,7 +8,8 @@ export const updateVehicles = async (dataParsed) => {
     if (!dataParsed[index]) return;
 
     const id = await modelVehicle.getVehicleIDByLicensePlate(
-      dataParsed[index].placa
+      dataParsed[index].placa,
+      true
     );
 
     let vehicle = {

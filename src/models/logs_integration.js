@@ -15,22 +15,23 @@ export class LogsIntegration {
     });
 
     if (lastSync?.length > 0) {
-      return (
-        lastSync[0].last_sync.toLocaleDateString() +
-        " " +
-        lastSync[0].last_sync.toLocaleTimeString()
-      );
+      return lastSync[0].last_sync;
     } else {
       return null;
     }
   }
 
   async createSync(tableName, syncType, state) {
-    // const last_sync = getDateTimeNow();
-    // console.log("last_sync--->>", last_sync);
+    const date = await this.findLastSync(syncType, tableName);
+
+    const currentDate = new Date();
+    let last_sync = new Date(date.setDate(date.getDate() + 1));
+
+    if (last_sync >= currentDate) last_sync = currentDate;
+
     const newSync = await prisma.integracaoSankhya.create({
       data: {
-        last_sync: new Date(),
+        last_sync,
         type_sync: syncType,
         page: 0,
         table_name: tableName,

@@ -28,7 +28,10 @@ export async function SankhyaServiceTravel(syncType) {
         lastSync
       );
 
-      if (!data) return;
+      if (!data[0]) {
+        await updateLog(logId, stateTypes.success);
+        return;
+      }
 
       let dataParsed = data.map((item) => {
         return {

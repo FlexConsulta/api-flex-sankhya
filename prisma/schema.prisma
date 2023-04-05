@@ -51,7 +51,7 @@ model Motorista {
 
 model IntegracaoSankhya {
   id         Int      @id @default(autoincrement())
-  last_sync  DateTime
+  last_sync  DateTime @db.Timestamptz(6)
   type_sync  String
   page       Int
   table_name String

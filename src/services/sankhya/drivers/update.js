@@ -1,6 +1,6 @@
-import 'dotenv/config';
-import { prisma } from '../../../database/prismaClient.js';
-import { ModelDriver } from '../../../models/drivers.js';
+import "dotenv/config";
+import { prisma } from "../../../database/prismaClient.js";
+import { ModelDriver } from "../../../models/drivers.js";
 
 export const updateDrivers = async (dataParsed) => {
   let modelDriver = new ModelDriver();
@@ -8,7 +8,10 @@ export const updateDrivers = async (dataParsed) => {
   const updateDriver = async (index) => {
     if (!dataParsed[index]) return;
 
-    const id = await modelDriver.getDriverIDByCpf(dataParsed[index].cpf_mot);
+    const id = await modelDriver.getDriverIDByCpf(
+      dataParsed[index].cpf_mot,
+      true
+    );
 
     let driver = {
       cnh_mot: dataParsed[index].cnh_mot,
