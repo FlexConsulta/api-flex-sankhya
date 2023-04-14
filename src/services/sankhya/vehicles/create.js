@@ -26,6 +26,13 @@ export const createNewVehicles = async (dataParsed) => {
       });
     }
 
+    if (newVehicle.length >= 50) {
+      await prisma.veiculo.createMany({
+        data: newVehicle,
+        skipDuplicates: true,
+      });
+      newVehicle = [];
+    }
     vehicle = null;
     await filterVehicles(index + 1);
   };

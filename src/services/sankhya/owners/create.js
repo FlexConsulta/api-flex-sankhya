@@ -27,6 +27,14 @@ export const createNewOwners = async (dataParsed) => {
       });
     }
 
+    if (newOwners.length >= 50) {
+      await prisma.proprietario.createMany({
+        data: newOwners,
+        skipDuplicates: true,
+      });
+      newOwners = [];
+    }
+
     owner = null;
     await filterOwners(index + 1);
   };
