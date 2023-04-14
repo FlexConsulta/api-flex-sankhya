@@ -1,7 +1,6 @@
 import { LogsIntegration } from "../../models/logs_integration.js";
 import { stateTypes } from "../../shared/stateTypes.js";
 import { syncTypes } from "../../shared/syncTypes.js";
-import { getDateTimeNow } from "../utils/dateTime.js";
 
 export const getLastSync = async (syncType, table) => {
   let logsIntegration = new LogsIntegration();

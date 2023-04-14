@@ -77,8 +77,8 @@ export const requestBodyTravels = (syncType, lastSync, pWhere = null) => {
 
   return {
     requestBody: {
-      // sql: `SELECT * FROM AD_VWTBCFLEXCTE WHERE MOTCPF = '51038080134' order by DTEMISSAO desc`,
-      sql: `SELECT * FROM AD_VWTBCFLEXCTE WHERE DATAFLEX is not null and DTEMISSAO is not null and NUVIAGEM > 0 ${where}`,
+      sql: `SELECT * FROM AD_VWTBCFLEXCTE WHERE DATAFLEX is not null and DTEMISSAO is not null and NUVIAGEM > 0 AND DTEMISSAO >= TO_DATE('12/04/2023', 'dd/mm/yyyy') AND DTEMISSAO <= TO_DATE('13/04/2023', 'dd/mm/yyyy') and MOTCPF ='50350730091'`,
+      // sql: `SELECT * FROM AD_VWTBCFLEXCTE WHERE DATAFLEX is not null and DTEMISSAO is not null and NUVIAGEM > 0 ${where}`,
     },
   };
 };
