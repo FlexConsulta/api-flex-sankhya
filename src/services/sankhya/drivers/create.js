@@ -30,9 +30,8 @@ export const createNewDriver = async (dataParsed) => {
           data: newDrivers,
           skipDuplicates: true,
         });
+        newDrivers = [];
       }
-
-      newDrivers = [];
 
       driver = null;
     }

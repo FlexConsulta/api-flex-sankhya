@@ -16,8 +16,6 @@ export async function SankhyaServiceTravel(syncType) {
 
   const { lastSync, logId } = await getLastSync(syncType, syncTable);
 
-  // console.log(lastSync, logId);
-
   const getData = async () => {
     try {
       console.log(syncType, `get ${syncTable} data`);

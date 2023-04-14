@@ -23,25 +23,28 @@ export const getLocalID = async (travel) => {
   };
 
   const id = await modelTravel.getTravelIDByClientNumber(travel.numero_cliente);
+  console.log("id:", id);
   if (id) return clearData();
 
   const idmotorista = await modelDriver.getDriverIDByCpf(
     travel.cpf_motorista,
     true
   );
+  console.log("idmotorista:", idmotorista);
   if (!idmotorista) return clearData();
 
   const idproprietario = await modelOwner.getOwnerIDByCpfOrCnpj(
     travel.cpf_cnpj_proprietario,
     true
   );
+  console.log("idproprietario:", idproprietario);
   if (!idproprietario) return clearData();
 
   const idveiculo = await modelVehicle.getVehicleIDByLicensePlate(
     travel.placa_veiculo,
     true
   );
-
+  console.log("idveiculo:", idveiculo);
   if (!idveiculo) return clearData();
 
   clearData();

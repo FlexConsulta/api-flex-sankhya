@@ -10,6 +10,17 @@ export const createNewTravels = async (dataParsed) => {
     const { idmotorista, idproprietario, idveiculo, isValidData } =
       await getLocalID(dataParsed[index]);
 
+    console.log(
+      "idmotorista:",
+      idmotorista,
+      "idproprietario:",
+      idproprietario,
+      "idveiculo:",
+      idveiculo,
+      "isValidData:",
+      isValidData
+    );
+
     let travel = {
       numero_cliente: dataParsed[index].numero_cliente,
       dt_viagem: dataParsed[index].dt_viagem,
@@ -34,14 +45,12 @@ export const createNewTravels = async (dataParsed) => {
       idveiculo,
     };
 
-    // console.log(idmotorista, idproprietario, idveiculo, isValidData);
-
     if (isValidData) {
       newTravels.push({
         ...travel,
       });
     }
-    console.log(newTravels.length, " ", travel.numero_cliente);
+
     if (newTravels.length >= 50) {
       await prisma.viagem.createMany({
         data: newTravels,

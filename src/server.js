@@ -168,11 +168,14 @@ app.listen(process.env.PORT, async () => {
   console.log(`App started on ${process.env.PORT} 👍 `);
 
   await connectSankhya({
-    driver: true,
-    owner: true,
-    veichile: true,
+    driver: false,
+    owner: false,
+    veichile: false,
     travel: true,
   });
 
   checkTime();
 });
+
+//Error: Motorista não encontrado 47716548832
+//50350730091

@@ -27,13 +27,12 @@ export const getSankhyaData = async (
       break;
     case tableTypes.viagens:
       dataRequestBody = requestBodyTravels(syncType, lastSync, where);
+      console.log("dataRequestBody", dataRequestBody);
       break;
     case tableTypes.veiculos:
       dataRequestBody = requestBodyVehicles(syncType, lastSync, where);
       break;
   }
-
-  // console.log("dataRequestBody", dataRequestBody);
 
   let response;
   try {
