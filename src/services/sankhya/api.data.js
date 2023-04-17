@@ -20,17 +20,16 @@ export const getSankhyaData = async (
 
   switch (tableType) {
     case tableTypes.motoristas:
-      dataRequestBody = requestBodyDrivers(syncType, lastSync, where);
+      dataRequestBody = requestBodyDrivers(lastSync, where);
       break;
     case tableTypes.proprietarios:
-      dataRequestBody = requestBodyOwners(syncType, lastSync, where);
+      dataRequestBody = requestBodyOwners(lastSync, where);
       break;
     case tableTypes.viagens:
-      dataRequestBody = requestBodyTravels(syncType, lastSync, where);
-      console.log("dataRequestBody", dataRequestBody);
+      dataRequestBody = requestBodyTravels(lastSync);
       break;
     case tableTypes.veiculos:
-      dataRequestBody = requestBodyVehicles(syncType, lastSync, where);
+      dataRequestBody = requestBodyVehicles(lastSync, where);
       break;
   }
 
