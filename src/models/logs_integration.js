@@ -22,9 +22,12 @@ export class LogsIntegration {
   }
 
   async createSync(tableName, syncType, state) {
-    const date = await this.findLastSync(syncType, tableName);
+    let date = await this.findLastSync(syncType, tableName);
+
+    if (!date) date = process.env.START_DATE;
 
     const currentDate = new Date();
+
     let last_sync = new Date(date.setDate(date.getDate() + 1));
 
     if (last_sync >= currentDate) last_sync = currentDate;
