@@ -34,7 +34,9 @@ export async function SankhyaServiceTravel(syncType) {
       let dataParsed = data.map((item) => {
         return {
           idcliente: Number(process.env.ID_CUSTOMER),
-          numero_cliente: item[findFieldIndex("NUVIAGEM", fields)].toString(),
+          numero_cliente: `${item[
+            findFieldIndex("CODEMP", fields)
+          ].toString()}-${item[findFieldIndex("NUVIAGEM", fields)].toString()}`,
           dt_viagem: getDateFormated(item[findFieldIndex("DTEMISSAO", fields)]),
           mercadoria: item[findFieldIndex("PRODUTO", fields)],
           cidade_origem: item[findFieldIndex("CIDADEUFORIGEM", fields)],
