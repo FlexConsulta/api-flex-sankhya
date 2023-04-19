@@ -48,9 +48,9 @@ export async function SankhyaServiceTravel(syncType) {
           cpf_cnpj_proprietario: item[findFieldIndex("PROPCPFCNPJ", fields)],
           placa_veiculo: item[findFieldIndex("CAVPLACA", fields)],
           dt_cancelamento:
-            item[findFieldIndex("STATUS", fields)] > 0 ? new Date() : null,
+            item[findFieldIndex("STATUS_CTE", fields)] > 0 ? new Date() : null,
           viagem_cancelado:
-            item[findFieldIndex("STATUS", fields)] > 0
+            item[findFieldIndex("STATUS_CTE", fields)] > 0
               ? enum_viagem_cancelado.S
               : enum_viagem_cancelado.N,
           dt_cliente: getDateFormated(
