@@ -1,5 +1,6 @@
 const getDataFim = (lastSync) => {
   const newDate = new Date(lastSync);
+  if (!newDate) throw new Error("lastSync null in getDataFim");
   let data_fim = new Date(newDate.setDate(newDate.getDate() + 1));
   const currentDate = new Date();
   if (data_fim >= currentDate) data_fim = currentDate;
