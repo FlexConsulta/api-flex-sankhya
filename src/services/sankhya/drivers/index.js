@@ -41,10 +41,8 @@ export async function SankhyaServiceDriver(syncType, cpf_mot = null) {
           cpf_mot: item[findFieldIndex("CGC_CPF", fields)],
           cnh_mot: item[findFieldIndex("CNH", fields)],
           status: item[findFieldIndex("STATUS", fields)],
-          dt_criacao: getDateFormated(item[findFieldIndex("DTCAD", fields)]),
-          dt_atualizacao: getDateFormated(
-            item[findFieldIndex("DATAFLEX", fields)]
-          ),
+          dt_criacao: new Date(),
+          dt_atualizacao: new Date(),
         };
       });
 
