@@ -54,14 +54,11 @@ export async function SankhyaServiceTravel(syncType) {
               ? enum_viagem_cancelado.S
               : enum_viagem_cancelado.N,
           dt_cliente: getDateFormated(
-            item[findFieldIndex("DTEMISSAO", fields)]
+            item[findFieldIndex("DATAFLEX", fields)],
+            false
           ),
-          dt_criacao: getDateFormated(
-            item[findFieldIndex("DTEMISSAO", fields)]
-          ),
-          dt_atualizacao: getDateFormated(
-            item[findFieldIndex("DATAFLEX", fields)]
-          ),
+          dt_criacao: new Date(),
+          dt_atualizacao: new Date(),
         };
       });
 

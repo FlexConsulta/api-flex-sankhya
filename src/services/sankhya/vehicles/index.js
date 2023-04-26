@@ -38,10 +38,8 @@ export async function SankhyaServiceVehicle(syncType, placa = null) {
           placa: item[findFieldIndex("PLACACAVALO", fields)],
           renavam: item[findFieldIndex("RENAVAMCAVALO", fields)],
           status: item[findFieldIndex("STATUS", fields)],
-          dt_criacao: getDateFormated(item[findFieldIndex("DHINC", fields)]),
-          dt_atualizacao: getDateFormated(
-            item[findFieldIndex("DATAFLEX", fields)]
-          ),
+          dt_criacao: new Date(),
+          dt_atualizacao: new Date(),
         };
       });
 

@@ -42,10 +42,8 @@ export async function SankhyaServiceOwner(syncType, cpf_cnpj_prop = null) {
           nome_prop: item[findFieldIndex("RAZAOSOCIAL", fields)],
           status: item[findFieldIndex("STATUS", fields)],
           antt_prop: item[findFieldIndex("ANTT", fields)],
-          dt_criacao: getDateFormated(item[findFieldIndex("DTCAD", fields)]),
-          dt_atualizacao: getDateFormated(
-            item[findFieldIndex("DATAFLEX", fields)]
-          ),
+          dt_criacao: new Date(),
+          dt_atualizacao: new Date(),
         };
       });
       //console.log(dataParsed[0]);
