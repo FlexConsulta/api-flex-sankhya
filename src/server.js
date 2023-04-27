@@ -12,6 +12,7 @@ import { SankhyaServiceTravel } from "./services/sankhya/travels/index.js";
 import { dateLessThanNow } from "./services/utils/dateTime.js";
 import { tableTypes } from "./shared/tableTypes.js";
 import { getLastSync } from "./services/sankhya/logs.controller.js";
+import cron from "node-cron";
 
 const app = express();
 
@@ -148,33 +149,31 @@ const connectSankhya = async (syncOptions) => {
   console.log("Process finished");
 };
 
-const checkTime = () => {
-  setTimeout(async () => {
-    const [hora, minuto] = new Date().toLocaleTimeString().split(":");
+app.listen(process.env.PORT, async () => {
+  console.log(`App started on ${process.env.PORT} 👍 `);
 
-    if (hora == 23 && minuto == 55) {
+  cron.schedule(
+    "46 23 * * *",
+    async () => {
       await connectSankhya({
         driver: true,
         owner: true,
         veichile: true,
         travel: true,
       });
+    },
+    {
+      scheduled: true,
+      timezone: "America/Sao_Paulo",
     }
-    checkTime();
-  }, 6000); //60000
-};
+  );
 
-app.listen(process.env.PORT, async () => {
-  console.log(`App started on ${process.env.PORT} 👍 `);
-
-  await connectSankhya({
-    driver: true,
-    owner: true,
-    veichile: true,
-    travel: true,
-  });
-
-  checkTime();
+  // await connectSankhya({
+  //   driver: true,
+  //   owner: true,
+  //   veichile: true,
+  //   travel: true,
+  // });
 });
 
 //Error: Motorista não encontrado 47716548832
