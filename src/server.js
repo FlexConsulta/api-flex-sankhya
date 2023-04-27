@@ -168,13 +168,10 @@ app.listen(process.env.PORT, async () => {
     }
   );
 
-  // await connectSankhya({
-  //   driver: true,
-  //   owner: true,
-  //   veichile: true,
-  //   travel: true,
-  // });
+  await connectSankhya({
+    driver: true,
+    owner: true,
+    veichile: true,
+    travel: true,
+  });
 });
-
-//Error: Motorista não encontrado 47716548832
-//50350730091
